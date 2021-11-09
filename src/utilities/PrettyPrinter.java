@@ -1,4 +1,4 @@
-package utility;
+package utilities;
 
 final public class PrettyPrinter {
     public static void printBytes(byte[] bytes) {

@@ -1,9 +1,8 @@
 package main.components;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-import utility.ColorTheme;
-import utility.Point;
+import utilities.ColorTheme;
+import utilities.Point;
 
 public class Cable {
     private OutputPort sourcePort;

@@ -1,6 +1,6 @@
 package audio;
 
-import utility.PrettyPrinter;
+import utilities.PrettyPrinter;
 
 public class AudioBuffer {
     private byte[] byteArray;

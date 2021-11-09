@@ -7,8 +7,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 
 import main.modules.*;
-import utility.ColorTheme;
-import utility.Point;
+import utilities.ColorTheme;
+import utilities.Point;
 
 import java.util.ArrayList;
 
@@ -22,49 +22,22 @@ public class Plugboard extends Canvas {
 
         AudioIO audioIO = new AudioIO();
 
-        Module inputsModule = new InputsModule(audioIO);
-        modules.add(inputsModule);
-        inputsModule.setPosition(50,  50);
-
-        Module oscillatorModule = new SineSquareOscillator();
-        modules.add(oscillatorModule);
-        oscillatorModule.setPosition(300,  200);
-
-        Module oscillatorModule2 = new LowFrequencyOscillator();
-        modules.add(oscillatorModule2);
-        oscillatorModule2.setPosition(300,  300);
-
-        OutputsModule outputsModule = new OutputsModule(audioIO);
-        modules.add(outputsModule);
-        outputsModule.setPosition(700,  50);
-
-        Module knobModule = new KnobModule();
-        modules.add(knobModule);
-        knobModule.setPosition(100,  300);
-
-        Module knobModule2 = new KnobModule();
-        modules.add(knobModule2);
-        knobModule2.setPosition(100,  420);
-
-        Module knobModule3 = new KnobModule();
-        modules.add(knobModule3);
-        knobModule3.setPosition(100,  540);
-
-        Module knobModule4 = new KnobModule();
-        modules.add(knobModule4);
-        knobModule4.setPosition(100,  660);
+        modules.add(new SineSquareOscillator().setPosition(650,  200));
+        modules.add(new LowFrequencyOscillator().setPosition(300,  350));
+        modules.add(new OutputsModule(audioIO).setPosition(700,  50));
+        modules.add(new KnobModule().setPosition(100,  100));
+        modules.add(new KnobModule().setPosition(100,  210));
+        modules.add(new KnobModule().setPosition(100,  320));
+        modules.add(new KnobModule().setPosition(100,  430));
 
         /*Module mixerModule = new MixerModule(5);
         modules.add(mixerModule);
         mixerModule.setPosition(450,  300);*/
 
-        /*Module sequencer = new SequencerModule(8);
-        modules.add(sequencer);
-        sequencer.setPosition(600,  300);*/
+        modules.add(new SequencerModule(8).setPosition(300,  100));
+        modules.add(new ADSRModule().setPosition(300,  250));
 
-        Module display = new DisplayModule();
-        modules.add(display);
-        display.setPosition(500, 300);
+        modules.add(new DisplayModule().setPosition(700, 400));
 
         //outputModule.getInput(0).connectTo(oscillatorModule.getOutput(0));
 

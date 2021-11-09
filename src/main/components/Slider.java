@@ -1,7 +1,7 @@
 package main.components;
 
 import javafx.scene.canvas.GraphicsContext;
-import utility.ColorTheme;
+import utilities.ColorTheme;
 
 public class Slider {
     private int width;

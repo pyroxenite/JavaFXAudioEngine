@@ -8,8 +8,8 @@ import main.components.Cable;
 import main.components.InputPort;
 import main.components.OutputPort;
 import main.components.Slider;
-import utility.ColorTheme;
-import utility.Point;
+import utilities.ColorTheme;
+import utilities.Point;
 
 import java.util.ArrayList;
 
@@ -26,20 +26,7 @@ public class MixerModule extends Module {
             sliders.add(new Slider(width - 44, true));
         }
 
-        addOutput("Output");
-    }
-
-    @Override
-    protected void updateGeometry() {
-        width = 200;
-        if (sliders == null || outputs.size() < 1) return;
-        height = 26 + 5 + (5 + Slider.height)*sliders.size();
-        outputs.get(0).setPosition(width - 11, 26 + (height-26)/2);
-        for (int i = 0; i  < sliders.size(); i++) {
-            getInput(i).setPosition(11, 26 + 5 + Slider.height/2 + (Slider.height + 5)*i);
-        }
-
-        outputs.get(0).setSignalProvider((frameLength -> {
+        addOutput("Output").setSignalProvider(frameLength -> {
             float[] sum = new float[frameLength];
             ArrayList<float[]> inputBytes = new ArrayList<>();
             for (int j=0; j<sliders.size(); j++)
@@ -51,7 +38,18 @@ public class MixerModule extends Module {
                 }
             }
             return sum;
-        }));
+        });
+    }
+
+    @Override
+    protected void updateGeometry() {
+        width = 200;
+        if (sliders == null || outputs.size() < 1) return;
+        height = 26 + 5 + (5 + Slider.height)*sliders.size();
+        outputs.get(0).setPosition(width - 11, 26 + (height-26)/2);
+        for (int i = 0; i  < sliders.size(); i++) {
+            getInput(i).setPosition(11, 26 + 5 + Slider.height/2 + (Slider.height + 5)*i);
+        }
     }
 
     @Override

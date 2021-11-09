@@ -1,4 +1,4 @@
-package utility;
+package utilities;
 
 final public class FormatConverter {
     public static byte[] toByteArray(float[] floats, int bytesPerFloat) {

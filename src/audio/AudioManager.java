@@ -1,8 +1,7 @@
 package audio;
 
 import main.components.InputPort;
-import main.components.Port;
-import utility.FormatConverter;
+import utilities.FormatConverter;
 
 import javax.sound.sampled.SourceDataLine;
 

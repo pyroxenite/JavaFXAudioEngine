@@ -1,0 +1,9 @@
+Copy/paste
+Save/load
+Document the code
+Write readme.md
+Make FFT module
+Finish mixer module
+Add noise module
+Add filters
+Add convolution reverb

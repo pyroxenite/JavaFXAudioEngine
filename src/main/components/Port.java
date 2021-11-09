@@ -3,8 +3,8 @@ package main.components;
 import audio.SignalProvider;
 import javafx.scene.canvas.GraphicsContext;
 import main.Module;
-import utility.ColorTheme;
-import utility.Point;
+import utilities.ColorTheme;
+import utilities.Point;
 
 public class Port {
     private Point position = new Point(0, 0);
@@ -35,12 +35,14 @@ public class Port {
         return parent;
     }
 
-    public void setPosition(int x, int y) {
+    public Port setPosition(double x, double y) {
         position.set(x, y);
+        return this;
     }
 
-    public void setSignalProvider(SignalProvider signalProvider) {
+    public Port setSignalProvider(SignalProvider signalProvider) {
         this.signalProvider = signalProvider;
+        return this;
     }
 
     public void draw(GraphicsContext gc) {

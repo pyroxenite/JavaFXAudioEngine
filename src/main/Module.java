@@ -2,12 +2,11 @@ package main;
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Affine;
-import utility.ColorTheme;
-import utility.Point;
+import utilities.ColorTheme;
+import utilities.Point;
 import main.components.Cable;
 import main.components.InputPort;
 import main.components.OutputPort;
@@ -15,7 +14,14 @@ import main.components.Port;
 
 import java.util.ArrayList;
 
+/**
+ * Modules are the audio processing/IO units. They provide a GUI for users to interact with the audio pipeline in
+ * realtime. This base class supports an arbitrary amount of inputs and outputs but the latter deliver a signal equal
+ * to zero by default. Further action through `OutputPort.setSignalProvider(int frameLength)` is required to make the
+ * module useful.
+ */
 public class Module {
+    // All the following attributes are protected because they are used in subclasses.
     protected String name;
 
     protected Point position = new Point(0, 0);
@@ -47,9 +53,14 @@ public class Module {
         return position;
     }
 
-    public void setPosition(double x, double y) {
+    /**
+     * Sets the position of the module. This is the module's top-left corner.
+     * @return Returns the module to allow for method chaining.
+     */
+    public Module setPosition(double x, double y) {
         this.position.setX(x);
         this.position.setY(y);
+        return this;
     }
 
     public int getWidth() {
@@ -76,16 +87,34 @@ public class Module {
         return outputs.get(i);
     }
 
-    public void addInput(String name) {
-        inputs.add(new InputPort(name, this));
+    /**
+     * Creates a new input port for the module and returns it to enable method chaining.
+     * @param name The name of the input (used as a label).
+     * @return The created port.
+     */
+    public InputPort addInput(String name) {
+        InputPort port = new InputPort(name, this);
+        inputs.add(port);
         updateGeometry();
+        return port;
     }
 
-    public void addOutput(String name) {
-        outputs.add(new OutputPort(name, this));
+    /**
+     * Creates a new output port for the module and returns it to enable method chaining.
+     * @param name The name of the output (used as a label).
+     * @return The created port.
+     */
+    public OutputPort addOutput(String name) {
+        OutputPort port = new OutputPort(name, this);
+        outputs.add(port);
         updateGeometry();
+        return port;
     }
 
+    /**
+     * Constructs the module's bounding box.
+     * @return The bounding box.
+     */
     public Rectangle2D getBoundingBox() {
         return new Rectangle2D(
                 position.getX(),
@@ -95,6 +124,10 @@ public class Module {
         );
     }
 
+    /**
+     * Calculates the layout of the module. This includes height and width based on the size of the labels as well as
+     * positioning the ports automatically.
+     */
     protected void updateGeometry() {
         int textLineHeight = 22;
 
@@ -137,9 +170,35 @@ public class Module {
         }
     }
 
+    /**
+     * Draws the module at its position.
+     * @param gc The current graphics context.
+     */
     public void draw(GraphicsContext gc) {
-        gc.transform(new Affine(1, 0, this.position.getX(),0, 1, this.position.getY()));
+        // Translate to the module's position.
+        translate(gc, this.position.getX(), this.position.getY());
 
+        drawPaneAndTitleBar(gc);
+        drawPortsAndLabels(gc);
+
+        // Invert translation.
+        translate(gc, -this.position.getX(), -this.position.getY());
+        drawCables(gc);
+    }
+
+    /**
+     * Translate drawing actions by (x, y).
+     * @param gc The current graphics context.
+     */
+    protected void translate(GraphicsContext gc, double x, double y) {
+        gc.transform(new Affine(1, 0, x,0, 1, y));
+    }
+
+    /**
+     * Draws the module's background, borders and title.
+     * @param gc The current graphics context.
+     */
+    protected void drawPaneAndTitleBar(GraphicsContext gc) {
         gc.setFill(ColorTheme.MODULE_BACKGROUND);
         if (isSelected) {
             gc.setLineWidth(2);
@@ -153,7 +212,7 @@ public class Module {
         gc.strokeRoundRect(0, 0, width, height, borderRadius, borderRadius);
         gc.setFill(ColorTheme.TEXT_NORMAL);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText(name, width/2, 18, width);
+        gc.fillText(name, width/2, 18, width-20);
 
         gc.setStroke(ColorTheme.MODULE_BORDER);
         gc.setLineWidth(1);
@@ -162,7 +221,13 @@ public class Module {
         } else {
             gc.strokeLine(0, 26, width, 26);
         }
+    }
 
+    /**
+     * Draws the input and output ports with their corresponding labels.
+     * @param gc The current graphics context.
+     */
+    protected void drawPortsAndLabels(GraphicsContext gc) {
         gc.setTextAlign(TextAlignment.LEFT);
         for (InputPort inputPort: inputs) {
             inputPort.draw(gc);
@@ -176,20 +241,38 @@ public class Module {
             gc.setFill(ColorTheme.TEXT_NORMAL);
             gc.fillText(outputPort.getName(), outputPort.getPosition().getX()-10, outputPort.getPosition().getY()+4);
         }
+    }
 
-        gc.transform(new Affine(1, 0, -this.position.getX(),0, 1, -this.position.getY()));
+    /**
+     * Draws the input and output ports without their corresponding labels.
+     * @param gc The current graphics context.
+     */
+    protected void drawPortsOnly(GraphicsContext gc) {
+        inputs.forEach(inputPort -> inputPort.draw(gc));
+        outputs.forEach(outputPort -> outputPort.draw(gc));
+    }
 
+    /**
+     * Draws cables connected to the inputs as well as the temporary cable used during drag operations.
+     * @param gc The current graphics context.
+     */
+    protected void drawCables(GraphicsContext gc) {
         if (temporaryCableReference != null)
             temporaryCableReference.draw(gc);
 
-        for (InputPort inputPort: inputs) {
+        inputs.forEach(inputPort -> {
             Cable cable = inputPort.getCable();
-            if (cable != null)
-                cable.draw(gc);
-        }
+            if (cable != null) cable.draw(gc);
+        });
     }
 
-    protected Port findPortUnderMouse(Point relativeMousePosition) {
+    /**
+     * Iterates through ports until a port at the specified relative position is found. The position is relitive to the
+     * module's position (top-left corner).
+     * @param relativeMousePosition The relative position.
+     * @return A port if one is found. Null otherwise.
+     */
+    public Port findPortUnderMouse(Point relativeMousePosition) {
         for (Port inputPort: inputs) {
             if (inputPort.getPosition().distanceTo(relativeMousePosition) < 7) {
                 return inputPort;
@@ -203,6 +286,10 @@ public class Module {
         return null;
     }
 
+    /**
+     * Handles mouse clicks that occur in the module's bounding box.
+     * @param mousePosition The absolute position of the mouse.
+     */
     public void handleMouseClicked(Point mousePosition) {
         Point relativePosition = mousePosition.copy().subtract(position);
         if (relativePosition.getY() < 26) {
@@ -218,6 +305,12 @@ public class Module {
         }
     }
 
+    /**
+     * Handles mouse releases after a mouse click that has occurred in the module's bounding box.
+     * @param mousePosition The absolute position of the mouse.
+     * @param moduleUnderMouse The module that was under the mouse at time of release. It can be different that the
+     *                         current module (for example when dragging a cable to another module's port).
+     */
     public void handleMouseReleased(Point mousePosition, Module moduleUnderMouse) {
         dragStarted = false;
 
@@ -233,6 +326,11 @@ public class Module {
         }
     }
 
+    /**
+     * Handle a drag event when the drag was initiated in the module's bounding box.
+     * @param mousePosition The absolute mouse position.
+     * @param mouseDelta The difference between the current and previous mouse position.
+     */
     public void handleDrag(Point mousePosition, Point mouseDelta) {
         if (dragStarted) {
             setPosition(
@@ -244,10 +342,16 @@ public class Module {
         }
     }
 
+    /**
+     * Set the module as selected (changes the way it is drawn).
+     */
     public void select() {
         isSelected = true;
     }
 
+    /**
+     * Deselects the module.
+     */
     public void deselect() {
         isSelected = false;
     }
