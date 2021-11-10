@@ -22,8 +22,8 @@ public class Plugboard extends Canvas {
 
         AudioIO audioIO = new AudioIO();
 
-        modules.add(new SineSquareOscillator().setPosition(650,  200));
-        modules.add(new LowFrequencyOscillator().setPosition(300,  350));
+        modules.add(new SineSquareOscillatorModule().setPosition(650,  200));
+        modules.add(new LowFrequencyOscillatorModule().setPosition(300,  350));
         modules.add(new OutputsModule(audioIO).setPosition(700,  50));
         modules.add(new KnobModule().setPosition(100,  100));
         modules.add(new KnobModule().setPosition(100,  210));
@@ -33,6 +33,7 @@ public class Plugboard extends Canvas {
         /*Module mixerModule = new MixerModule(5);
         modules.add(mixerModule);
         mixerModule.setPosition(450,  300);*/
+        modules.add(new MixerModule(5).setPosition(500, 500));
 
         modules.add(new SequencerModule(8).setPosition(300,  100));
         modules.add(new ADSRModule().setPosition(300,  250));

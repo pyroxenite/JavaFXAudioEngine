@@ -1,9 +1,11 @@
-Copy/paste
-Save/load
+Finish mixer module
+Add zero-mark on knob modules
+Noise module
+Copy/paste/delete
+Play/pause
+Save/load as file
 Document the code
 Write readme.md
 Make FFT module
-Finish mixer module
-Add noise module
-Add filters
-Add convolution reverb
+Filters
+Convolution reverb via FFT

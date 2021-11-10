@@ -1,7 +1,5 @@
 package main.components;
 
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import main.Module;
 import main.modules.KnobModule;
 
@@ -22,11 +20,11 @@ public class InputPort extends Port {
         }
     }
 
-    public float[] requestFrame(int frameLength) {
+    public float[] requestFrames(int frameLength) {
         if (cable != null && cable.isConnectedToSource()) {
-            return cable.getSource().requestFrame(frameLength);
+            return cable.getSource().requestFrames(frameLength);
         } else {
-            return zeroSignalProvider.requestFrame(frameLength);
+            return zeroSignalProvider.requestFrames(frameLength);
         }
     }
 

@@ -7,14 +7,15 @@ import main.Module;
 import main.components.Cable;
 import main.components.InputPort;
 import main.components.OutputPort;
-import main.components.Slider;
+import main.components.SliderGauge;
 import utilities.ColorTheme;
+import utilities.MathFunctions;
 import utilities.Point;
 
 import java.util.ArrayList;
 
 public class MixerModule extends Module {
-    private ArrayList<Slider> sliders = new ArrayList<>();
+    private ArrayList<SliderGauge> sliderGauges = new ArrayList<>();
     private boolean valueDragStarted = false;
     private int valueDragIndex = 0;
 
@@ -23,19 +24,23 @@ public class MixerModule extends Module {
 
         for (int i=0; i<numberOfInputs; i++) {
             addInput("Input "+(i+1));
-            sliders.add(new Slider(width - 44, true));
+            sliderGauges.add(new SliderGauge(width - 44, true));
         }
 
-        addOutput("Output").setSignalProvider(frameLength -> {
-            float[] sum = new float[frameLength];
+        addOutput("Output").setSignalProvider(n -> {
+            float[] sum = new float[n];
             ArrayList<float[]> inputBytes = new ArrayList<>();
-            for (int j=0; j<sliders.size(); j++)
-                inputBytes.add(inputs.get(j).requestFrame(frameLength));
-            for (int i=0; i<frameLength; i++) {
-                for (int j=0; j<sliders.size(); j++) {
-                    double g = Math.pow(10, (sliders.get(j).getValue()-0.8))*5;
+            for (int j = 0; j< sliderGauges.size(); j++) {
+                float[] inputFrame = inputs.get(j).requestFrames(n);
+                inputBytes.add(inputFrame);
+                sliderGauges.get(j).setGaugeValue(1+MathFunctions.amplitudeInDecibels(inputFrame)/40);
+            }
+            for (int i=0; i<n; i++) {
+                for (int j = 0; j< sliderGauges.size(); j++) {
+                    double g = Math.pow(10, (sliderGauges.get(j).getSliderValue()-0.8))*5;
                     sum[i] += inputBytes.get(j)[i] * g;
                 }
+
             }
             return sum;
         });
@@ -44,11 +49,11 @@ public class MixerModule extends Module {
     @Override
     protected void updateGeometry() {
         width = 200;
-        if (sliders == null || outputs.size() < 1) return;
-        height = 26 + 5 + (5 + Slider.height)*sliders.size();
+        if (sliderGauges == null || outputs.size() < 1) return;
+        height = 26 + 5 + (5 + SliderGauge.height)* sliderGauges.size();
         outputs.get(0).setPosition(width - 11, 26 + (height-26)/2);
-        for (int i = 0; i  < sliders.size(); i++) {
-            getInput(i).setPosition(11, 26 + 5 + Slider.height/2 + (Slider.height + 5)*i);
+        for (int i = 0; i  < sliderGauges.size(); i++) {
+            getInput(i).setPosition(11, 26 + 5 + SliderGauge.height/2 + (SliderGauge.height + 5)*i);
         }
     }
 
@@ -88,12 +93,12 @@ public class MixerModule extends Module {
 
         gc.transform(new Affine(1, 0, 22,0, 1, 26 + 5));
 
-        for (Slider slider: sliders) {
-            slider.draw(gc);
-            gc.transform(new Affine(1, 0, 0,0, 1, slider.getHeight() + 5));
+        for (SliderGauge sliderGauge : sliderGauges) {
+            sliderGauge.draw(gc);
+            gc.transform(new Affine(1, 0, 0,0, 1, sliderGauge.getHeight() + 5));
         }
 
-        gc.transform(new Affine(1, 0, -22,0, 1, -26-5-(Slider.height + 5)*sliders.size()));
+        gc.transform(new Affine(1, 0, -22,0, 1, -26-5-(SliderGauge.height + 5)* sliderGauges.size()));
 
         gc.transform(new Affine(1, 0, -this.position.getX(),0, 1, -this.position.getY()));
 
@@ -121,8 +126,8 @@ public class MixerModule extends Module {
                     temporaryCableReference = new Cable((InputPort) portUnderMouse, mousePosition);
             } else {
                 valueDragStarted = true;
-                valueDragIndex = (int) (relativePosition.getY() - 26) / (5 + Slider.height);
-                valueDragIndex = Math.max(0, Math.min(sliders.size()-1, valueDragIndex));
+                valueDragIndex = (int) (relativePosition.getY() - 26) / (5 + SliderGauge.height);
+                valueDragIndex = Math.max(0, Math.min(sliderGauges.size()-1, valueDragIndex));
             }
         }
     }
@@ -136,9 +141,9 @@ public class MixerModule extends Module {
         } else if (temporaryCableReference != null && portUnderMouse != null) {
             temporaryCableReference.setLooseEndPosition(mousePosition);
         } else if (valueDragStarted) {
-            Slider slider = sliders.get(valueDragIndex);
-            double delta = mouseDelta.getX()/slider.getWidth();
-            slider.setValue(slider.getValue() + delta);
+            SliderGauge sliderGauge = sliderGauges.get(valueDragIndex);
+            double delta = mouseDelta.getX()/ sliderGauge.getWidth();
+            sliderGauge.setSliderValue(sliderGauge.getSliderValue() + delta);
         }
     }
 }

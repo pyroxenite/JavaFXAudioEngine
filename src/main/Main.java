@@ -25,11 +25,16 @@ public class Main extends Application {
             primaryStage.show();
 
             new AnimationTimer() {
+                private long lastUpdate = 0 ;
                 @Override
-                public void handle(long l) {
-                    plugboard.redraw();
+                public void handle(long now) {
+                    if (now - lastUpdate >= 32_000_000) {
+                        plugboard.redraw();
+                        lastUpdate = now;
+                    }
                 }
             }.start();
+
         } catch (Exception e) {
             e.printStackTrace();
         }

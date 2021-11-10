@@ -11,10 +11,18 @@ public class Knob {
     private String name = "";
     private double min;
     private double max;
-    private String unit;
+    private String unit = "";
     private double value = 0.5; // 0 to 1;
     private double knobDiameter;
     private Point position = new Point();
+
+    public static final int NAME_AS_LABEL = 0;
+    public static final int VALUE_AS_LABEL = 1;
+    private int labelMode = NAME_AS_LABEL;
+
+    public static final int LINEAR = 0;
+    public static final int EXPONENTIAL = 1;
+    private int valueMapMode = LINEAR;
 
     public Knob(String name, double knobDiameter, double min, double max, double initial, String unit) {
         this.name = name;
@@ -22,7 +30,7 @@ public class Knob {
         this.min = min;
         this.knobDiameter = knobDiameter;
         this.unit = unit;
-        this.value = (initial - min) / (max - min);
+        this.value = initial;
     }
 
     public Knob(String name, double knobDiameter, double min, double max, double initial) {
@@ -30,15 +38,25 @@ public class Knob {
         this.max = max;
         this.min = min;
         this.knobDiameter = knobDiameter;
-        this.value = (initial - min) / (max - min);
+        this.value = initial;
     }
 
     public double getValue() {
-        return min + value*(max-min);
+        if (valueMapMode == LINEAR)
+            return min + value*(max-min);
+        else {
+            double s = 6; // steepness
+            double expValue = (Math.exp(s*value) - Math.exp(s*0))/(Math.exp(s) - Math.exp(0));
+            return min + expValue*(max-min);
+        }
     }
 
     public String getTextValue() {
-        return String.format("%.2f", getValue()) + unit;
+        if (getValue() < 10) {
+            return String.format("%.2f", getValue()) + unit;
+        } else {
+            return String.format("%.0f", getValue()) + unit;
+        }
     }
 
     public void addValue(double value) {
@@ -62,11 +80,26 @@ public class Knob {
         gc.strokeArc(-knobDiameter/2 + position.getX(), -knobDiameter/2 + position.getY(), knobDiameter, knobDiameter, 230, -280*value, ArcType.OPEN);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFill(ColorTheme.TEXT_NORMAL);
-        gc.fillText(name, position.getX(), position.getY() + knobDiameter/2 + 16);
+        gc.fillText(labelMode==NAME_AS_LABEL?name:getTextValue(), position.getX(), position.getY() + knobDiameter/2 + 16);
     }
 
     public Knob setPosition(double x, double y) {
         position.set(x, y);
+        return this;
+    }
+
+    public Knob displayValue() {
+        labelMode = VALUE_AS_LABEL;
+        return this;
+    }
+
+    public Knob displayName() {
+        labelMode = NAME_AS_LABEL;
+        return this;
+    }
+
+    public Knob setMapMode(int mode) {
+        valueMapMode = mode;
         return this;
     }
 }

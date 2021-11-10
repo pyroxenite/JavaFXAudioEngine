@@ -53,8 +53,8 @@ public class Port {
         gc.strokeOval(position.getX()-5, position.getY()-5, 10, 10);
     }
 
-    public float[] requestFrame(int frameLength) {
-        return signalProvider.requestFrame(frameLength);
+    public float[] requestFrames(int frameLength) {
+        return signalProvider.requestFrames(frameLength);
     }
 
     public void connectTo(Port port) {

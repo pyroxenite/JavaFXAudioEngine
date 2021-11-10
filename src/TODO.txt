@@ -9,4 +9,3 @@ Write readme.md
 Make FFT module
 Filters
 Convolution reverb via FFT
-Scrolling

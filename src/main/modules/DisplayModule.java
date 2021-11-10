@@ -12,8 +12,8 @@ public class DisplayModule extends Module {
         super("Display");
         addInput("Input");
 
-        addOutput("Output").setSignalProvider(frameLength -> {
-            float[] frame = getInput(0).requestFrame(frameLength);
+        addOutput("Output").setSignalProvider(n -> {
+            float[] frame = getInput(0).requestFrames(n);
             value = frame[0];
             return frame;
         });

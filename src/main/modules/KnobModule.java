@@ -24,8 +24,8 @@ public class KnobModule extends Module {
     public KnobModule() {
         super("Knob");
 
-        addOutput("Output").setSignalProvider(frameLength -> {
-            float[] frame = new float[frameLength];
+        addOutput("Output").setSignalProvider(n -> {
+            float[] frame = new float[n];
             Arrays.fill(frame, value*2-1);
             return frame;
         });
@@ -100,7 +100,7 @@ public class KnobModule extends Module {
         } else if (valueDragStarted) {
             value += (mouseDelta.getX() - mouseDelta.getY())/500;
             value = Math.max(0, Math.min(1, value));
-            name = String.format("%.2f", value);
+            name = String.format("%.2f", value*2 - 1);
         }
     }
 

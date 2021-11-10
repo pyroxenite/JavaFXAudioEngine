@@ -8,7 +8,7 @@ import javax.sound.sampled.SourceDataLine;
 public class AudioManager implements Runnable {
     private boolean threadIsRunning = false;
     private InputPort sourcePort = null;
-    private int frameSize = 128;
+    private int bufferSize = 128;
 
     private int sampleRate;
     private int bytesPerSample;
@@ -28,11 +28,9 @@ public class AudioManager implements Runnable {
 
             threadIsRunning = true;
             while (threadIsRunning) {
-                if (sourcePort != null && sourcePort.getCable() != null && outputLine.getBufferSize() - outputLine.available() < frameSize*10) {
-                    float[] floats = sourcePort.requestFrame(frameSize);
-                    outputLine.write(FormatConverter.toByteArray(floats, bytesPerSample), 0, frameSize);
-
-                    //printBytes(sourcePort.requestFrame(frameSize));
+                if (sourcePort != null && sourcePort.getCable() != null && outputLine.getBufferSize() - outputLine.available() < bufferSize *10) {
+                    float[] floats = sourcePort.requestFrames(bufferSize);
+                    outputLine.write(FormatConverter.toByteArray(floats, bytesPerSample), 0, bufferSize);
                 }
             }
 

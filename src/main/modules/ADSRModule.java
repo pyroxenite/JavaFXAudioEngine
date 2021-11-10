@@ -3,18 +3,10 @@ package main.modules;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.shape.StrokeLineCap;
 import main.Module;
-import main.components.Cable;
-import main.components.InputPort;
-import main.components.Knob;
-import main.components.OutputPort;
+import main.components.*;
 import utilities.ColorTheme;
 import utilities.MathFunctions;
 import utilities.Point;
-
-/*
-TODO:
- * Display values
- */
 
 public class ADSRModule extends Module {
     private boolean valueDragStarted = false;
@@ -22,11 +14,11 @@ public class ADSRModule extends Module {
 
     private int displayHeight = 70;
 
-    private Knob attackKnob = new Knob("Attack", 30, 1, 2000, 100, "ms");
-    private Knob decayKnob = new Knob("Decay", 30, 1, 2000, 200, "ms");
-    private Knob sustainKnob = new Knob("Sustain", 30, 0, 100, 30, "%");
-    private Knob releaseKnob = new Knob("Release", 30, 1, 10000, 500, "ms");
-    private Knob minKnob = new Knob("Min", 30, -1, 1, 0);
+    private Knob attackKnob = new Knob("Attack", 30, 1, 2000, 0.25, "ms");
+    private Knob decayKnob = new Knob("Decay", 30, 1, 2000, 0.75, "ms");
+    private Knob sustainKnob = new Knob("Sustain", 30, 0, 100, 0.3, "%");
+    private Knob releaseKnob = new Knob("Release", 30, 1, 10000, 0.5, "ms");
+    private Knob minKnob = new Knob("Min", 30, -1, 1, 0.5);
     private Knob maxKnob = new Knob("Max", 30, -1, 1, 1);
 
     private double t = 0;
@@ -36,21 +28,25 @@ public class ADSRModule extends Module {
 
     public ADSRModule() {
         super("ADSR Envelope");
-        double attack = attackKnob.getValue()/1000;
-        double decay = decayKnob.getValue()/1000;
+        attackKnob.setMapMode(Knob.EXPONENTIAL);
+        decayKnob.setMapMode(Knob.EXPONENTIAL);
+        releaseKnob.setMapMode(Knob.EXPONENTIAL);
 
         addInput("Trigger").setPosition(11, 26 + displayHeight + 21);
-        addOutput("Amplitude").setSignalProvider(frameLength -> {
-            float[] frame = new float[frameLength];
-            float[] trig = getInput(0).requestFrame(frameLength);
-            for (int i=0; i<frameLength; i++) {
+        addOutput("Amplitude").setSignalProvider(n -> {
+            double attack = attackKnob.getValue()/1000;
+            double decay = decayKnob.getValue()/1000;
+
+            float[] frame = new float[n];
+            float[] trig = getInput(0).requestFrames(n);
+            for (int i=0; i<n; i++) {
                 if (trig[i] == 1 && !triggered) {
                     triggered = true;
                     t = 0;
                 } else if (trig[i] != 1) {
                     triggered = false;
                 }
-                softOutputSample = (float) MathFunctions.lerp(softOutputSample, getAmplitude(t), 0.001/attack);
+                softOutputSample = (float) MathFunctions.lerp(softOutputSample, getAmplitude(t), 0.0005/attack);
                 frame[i] = softOutputSample;
                 if (trig[i] == 0 && t < attack + decay)
                     t = attack + decay;
@@ -171,7 +167,6 @@ public class ADSRModule extends Module {
 
     @Override
     public void handleMouseClicked(Point mousePosition) {
-        valueDragStarted = false;
         Point relativePosition = mousePosition.copy().subtract(position);
         if (relativePosition.getY() < 26) {
             dragStarted = true;
@@ -186,6 +181,18 @@ public class ADSRModule extends Module {
                 valueDragStarted = true;
                 valueDragIndex = (int) (relativePosition.getX() * 6 / width);
                 valueDragIndex = Math.max(0, Math.min(5, valueDragIndex));
+                if (valueDragIndex == 0)
+                    attackKnob.displayValue();
+                else if (valueDragIndex == 1)
+                    decayKnob.displayValue();
+                else if (valueDragIndex == 2)
+                    sustainKnob.displayValue();
+                else if (valueDragIndex == 3)
+                    releaseKnob.displayValue();
+                else if (valueDragIndex == 4)
+                    minKnob.displayValue();
+                else if (valueDragIndex == 5)
+                    maxKnob.displayValue();
             }
         }
     }
@@ -200,24 +207,39 @@ public class ADSRModule extends Module {
         } else if (temporaryCableReference != null && portUnderMouse != null) {
             temporaryCableReference.setLooseEndPosition(mousePosition);
         } else if (valueDragStarted) {
-            switch (valueDragIndex) {
-                case 0:
-                    attackKnob.addValue((mouseDelta.getX()-mouseDelta.getY())/300.0);
-                    break;
-                case 1:
-                    decayKnob.addValue((mouseDelta.getX()-mouseDelta.getY())/300.0);
-                    break;
-                case 2:
-                    sustainKnob.addValue((mouseDelta.getX()-mouseDelta.getY())/300.0);
-                    break;
-                case 3:
-                    releaseKnob.addValue((mouseDelta.getX()-mouseDelta.getY())/300.0);
-                    break;
-                case 4:
-                    minKnob.addValue((mouseDelta.getX()-mouseDelta.getY())/300.0);
-                    break;
-                case 5:
-                    maxKnob.addValue((mouseDelta.getX()-mouseDelta.getY())/300.0);
+            if (valueDragIndex == 0)
+                attackKnob.addValue((mouseDelta.getX()-mouseDelta.getY())/300.0);
+            else if (valueDragIndex == 1)
+                decayKnob.addValue((mouseDelta.getX()-mouseDelta.getY())/300.0);
+            else if (valueDragIndex == 2)
+                sustainKnob.addValue((mouseDelta.getX()-mouseDelta.getY())/300.0);
+            else if (valueDragIndex == 3)
+                releaseKnob.addValue((mouseDelta.getX()-mouseDelta.getY())/300.0);
+            else if (valueDragIndex == 4)
+                minKnob.addValue((mouseDelta.getX()-mouseDelta.getY())/300.0);
+            else if (valueDragIndex == 5)
+                maxKnob.addValue((mouseDelta.getX()-mouseDelta.getY())/300.0);
+        }
+    }
+
+    public void handleMouseReleased(Point mousePosition, Module moduleUnderMouse) {
+        dragStarted = false;
+        valueDragStarted = false;
+        attackKnob.displayName();
+        decayKnob.displayName();
+        sustainKnob.displayName();
+        releaseKnob.displayName();
+        minKnob.displayName();
+        maxKnob.displayName();
+
+        temporaryCableReference = null;
+
+        if (moduleUnderMouse != null && moduleUnderMouse != this) {
+            Point relativePosition = mousePosition.copy().subtract(moduleUnderMouse.getPosition());
+            Port externalPortUnderMouse = moduleUnderMouse.findPortUnderMouse(relativePosition);
+
+            if (externalPortUnderMouse != null && portUnderMouse.getClass() != externalPortUnderMouse.getClass()) {
+                portUnderMouse.connectTo(externalPortUnderMouse);
             }
         }
     }
