@@ -5,6 +5,9 @@ import javafx.scene.text.TextAlignment;
 import main.Module;
 import utilities.ColorTheme;
 
+/**
+ * This module displays the first value of the frame passed to it. It's primary use is for debugging.
+ */
 public class DisplayModule extends Module {
     private float value = 0;
 
@@ -12,8 +15,8 @@ public class DisplayModule extends Module {
         super("Display");
         addInput("Input");
 
-        addOutput("Output").setSignalProvider(n -> {
-            float[] frame = getInput(0).requestFrames(n);
+        addOutput("Output").setFrameGenerator(frameLength -> {
+            float[] frame = getInput(0).requestFrame(frameLength);
             value = frame[0];
             return frame;
         });

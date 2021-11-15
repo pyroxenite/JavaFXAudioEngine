@@ -16,4 +16,12 @@ final public class PrettyPrinter {
             System.out.print((i != bytes.length - 1)?", ":" ]\n");
         }
     }
+
+    public static void printFloats(float[] floats) {
+        System.out.print("[ ");
+        for (int i=0; i<floats.length; i++) {
+            System.out.print(floats[i]);
+            System.out.print((i != floats.length - 1)?", ":" ]\n");
+        }
+    }
 }

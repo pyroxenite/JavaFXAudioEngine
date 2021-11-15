@@ -11,7 +11,11 @@ import utilities.Point;
 
 import java.util.Arrays;
 
-public class SequencerModule extends Module {
+/**
+ * This module can produce a pitch signal that encodes a user-customizable note sequence (a melody, a bass-line...).
+ * It is meant to be connected to an oscillator and optionally an ADSR envelope.
+ */
+public class NoteSequencerModule extends Module {
     private int numberOfSteps;
     private double[] notes;
     private boolean valueDragStarted = false;
@@ -20,8 +24,8 @@ public class SequencerModule extends Module {
     private Knob dutyCycleKnob = new Knob("Duty Cycle", 30, 5, 100, 1, "%");
     private Knob tempoKnob = new Knob("Tempo", 30, 20, 6000, 0.2, "bpm");
 
-    public SequencerModule(int numberOfSteps) {
-        super(numberOfSteps + "-step Sequencer");
+    public NoteSequencerModule(int numberOfSteps) {
+        super(numberOfSteps + "-note Sequencer");
         this.numberOfSteps = numberOfSteps;
         if (numberOfSteps == 8)
             notes = new double[]{ 36, 36+4, 36+7, 36+11, 36+12, 36+11, 36+7, 36+4 }; // stranger things
@@ -31,21 +35,21 @@ public class SequencerModule extends Module {
         }
 
         dutyCycleKnob.setPosition(width/2.5 - 35, 105);
-        tempoKnob.setPosition(width/2.5 + 35, 105).setMapMode(Knob.EXPONENTIAL);
+        tempoKnob.setPosition(width/2.5 + 35, 105).setMapMode(Knob.MapMode.EXPONENTIAL);
 
-        addOutput("Pitch").setSignalProvider(n -> {
-            float[] frame = new float[n];
+        addOutput("Pitch").setFrameGenerator(frameLength -> {
+            float[] frame = new float[frameLength];
             double dt = tempoKnob.getValue()/60/44100;
-            for (int i=0; i<n; i++) {
+            for (int i=0; i<frameLength; i++) {
                 frame[i] = (float) (Math.floor(notes[(int) t])/64f - 1);
                 t = (t+dt >= numberOfSteps)?0:t+dt;
             }
             return frame;
         }).setPosition(width - 11, height - 38 - 10);
 
-        addOutput("Trigger").setSignalProvider(n -> {
-            float[] frame = new float[n];
-            for (int i=0; i<n; i++) {
+        addOutput("Trigger").setFrameGenerator(frameLength -> {
+            float[] frame = new float[frameLength];
+            for (int i=0; i<frameLength; i++) {
                 if (t % 1.0 < dutyCycleKnob.getValue()/100/2.0) {
                     frame[i] = 1f;
                 } else if (t % 1.0 < dutyCycleKnob.getValue()/100.0) {
@@ -87,8 +91,8 @@ public class SequencerModule extends Module {
             gc.fillText(NoteFormater.numberToText((int) notes[i]), 5 + w*i + (w - 5)/2, 26 + 30);
         }
 
-        dutyCycleKnob.draw(gc, isSelected);
-        tempoKnob.draw(gc, isSelected);
+        dutyCycleKnob.setSelected(isSelected).draw(gc);
+        tempoKnob.setSelected(isSelected).draw(gc);
 
         gc.transform(new Affine(1, 0, -this.position.getX(), 0, 1, -this.position.getY()));
 

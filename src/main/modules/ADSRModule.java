@@ -8,6 +8,10 @@ import utilities.ColorTheme;
 import utilities.MathFunctions;
 import utilities.Point;
 
+/**
+ * An ADSR (attack, decay, sustain, release) envelope. Made to be used in conjunction with oscillators. Can also be used
+ * to modulate filters.
+ */
 public class ADSRModule extends Module {
     private boolean valueDragStarted = false;
     private int valueDragIndex;
@@ -28,18 +32,18 @@ public class ADSRModule extends Module {
 
     public ADSRModule() {
         super("ADSR Envelope");
-        attackKnob.setMapMode(Knob.EXPONENTIAL);
-        decayKnob.setMapMode(Knob.EXPONENTIAL);
-        releaseKnob.setMapMode(Knob.EXPONENTIAL);
+        attackKnob.setMapMode(Knob.MapMode.EXPONENTIAL);
+        decayKnob.setMapMode(Knob.MapMode.EXPONENTIAL);
+        releaseKnob.setMapMode(Knob.MapMode.EXPONENTIAL);
 
         addInput("Trigger").setPosition(11, 26 + displayHeight + 21);
-        addOutput("Amplitude").setSignalProvider(n -> {
+        addOutput("Amplitude").setFrameGenerator(frameLength -> {
             double attack = attackKnob.getValue()/1000;
             double decay = decayKnob.getValue()/1000;
 
-            float[] frame = new float[n];
-            float[] trig = getInput(0).requestFrames(n);
-            for (int i=0; i<n; i++) {
+            float[] frame = new float[frameLength];
+            float[] trig = getInput(0).requestFrame(frameLength);
+            for (int i=0; i<frameLength; i++) {
                 if (trig[i] == 1 && !triggered) {
                     triggered = true;
                     t = 0;
@@ -106,12 +110,12 @@ public class ADSRModule extends Module {
         drawScreen(gc);
         drawPortsAndLabels(gc);
 
-        attackKnob.draw(gc, isSelected);
-        decayKnob.draw(gc, isSelected);
-        sustainKnob.draw(gc, isSelected);
-        releaseKnob.draw(gc, isSelected);
-        minKnob.draw(gc, isSelected);
-        maxKnob.draw(gc, isSelected);
+        attackKnob.setSelected(isSelected).draw(gc);
+        decayKnob.setSelected(isSelected).draw(gc);
+        sustainKnob.setSelected(isSelected).draw(gc);
+        releaseKnob.setSelected(isSelected).draw(gc);
+        minKnob.setSelected(isSelected).draw(gc);
+        maxKnob.setSelected(isSelected).draw(gc);
 
         translate(gc, -position.getX(), -position.getY());
 
@@ -222,6 +226,7 @@ public class ADSRModule extends Module {
         }
     }
 
+    @Override
     public void handleMouseReleased(Point mousePosition, Module moduleUnderMouse) {
         dragStarted = false;
         valueDragStarted = false;

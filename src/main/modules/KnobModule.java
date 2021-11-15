@@ -13,6 +13,9 @@ import utilities.Point;
 
 import java.util.Arrays;
 
+/**
+ * This module produces a constant signal user-customizable between -1.0 and 1.0.
+ */
 public class KnobModule extends Module {
     private float value = 0.5f;
     private boolean valueDragStarted = false;
@@ -24,8 +27,8 @@ public class KnobModule extends Module {
     public KnobModule() {
         super("Knob");
 
-        addOutput("Output").setSignalProvider(n -> {
-            float[] frame = new float[n];
+        addOutput("Output").setFrameGenerator(frameLength -> {
+            float[] frame = new float[frameLength];
             Arrays.fill(frame, value*2-1);
             return frame;
         });

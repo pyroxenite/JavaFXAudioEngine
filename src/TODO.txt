@@ -1,5 +1,6 @@
-Finish mixer module
 Add zero-mark on knob modules
+Clip player with controls
+Drum sequencer
 Noise module
 Copy/paste/delete
 Play/pause

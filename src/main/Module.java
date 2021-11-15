@@ -5,6 +5,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Affine;
+import main.interfaces.Drawable;
 import utilities.ColorTheme;
 import utilities.Point;
 import main.components.Cable;
@@ -17,10 +18,10 @@ import java.util.ArrayList;
 /**
  * Modules are the audio processing/IO units. They provide a GUI for users to interact with the audio pipeline in
  * realtime. This base class supports an arbitrary amount of inputs and outputs but the latter deliver a signal equal
- * to zero by default. Further action through `OutputPort.setSignalProvider(int frameLength)` is required to make the
- * module useful.
+ * to zero by default. Further action through `OutputPort.setFrameGenerator(int frameLength)` is required to make the
+ * module do anything useful.
  */
-public class Module {
+public class Module implements Drawable {
     // All the following attributes are protected because they are used in subclasses.
     protected String name;
 

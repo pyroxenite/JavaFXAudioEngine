@@ -1,10 +1,17 @@
 package main.components;
 
 import javafx.scene.canvas.GraphicsContext;
+import main.interfaces.Drawable;
 import utilities.ColorTheme;
 import utilities.Point;
 
-public class Cable {
+/**
+ * A cable connects an output port (the source) to an input port (the target) both graphically (a Bézier curve) and in
+ * the audio processing pipeline. This connection defines where the input port will request its frames.
+ *
+ * For drag and drop purposes, cables are allowed to have one of its ends loose, although this is purely graphical.
+ */
+public class Cable implements Drawable {
     private OutputPort sourcePort;
     private InputPort targetPort;
     private Point looseEndPosition; // used during drag operation

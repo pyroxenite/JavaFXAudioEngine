@@ -1,9 +1,14 @@
 package main.components;
 
+import main.interfaces.FrameGenerator;
 import main.Module;
 import main.modules.KnobModule;
 
-public class InputPort extends Port {
+/**
+ * An input port is drawn on the left of a module and is an audio target. When connected to a source via a cable,
+ * requested frames will come directly from the source. Otherwise, the returned frame will be zero.
+ */
+public class InputPort extends Port implements FrameGenerator {
     private Cable cable = null;
 
     public InputPort(String name, Module parent) {
@@ -20,11 +25,11 @@ public class InputPort extends Port {
         }
     }
 
-    public float[] requestFrames(int frameLength) {
+    public float[] requestFrame(int frameLength) {
         if (cable != null && cable.isConnectedToSource()) {
-            return cable.getSource().requestFrames(frameLength);
+            return cable.getSource().requestFrame(frameLength);
         } else {
-            return zeroSignalProvider.requestFrames(frameLength);
+            return ZERO_FRAME_GENERATOR.requestFrame(frameLength);
         }
     }
 

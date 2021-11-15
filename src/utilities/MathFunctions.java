@@ -5,6 +5,10 @@ final public class MathFunctions {
         return (1-t)*a + t*b;
     }
 
+    public static float lerp(float a, float b, float t) {
+        return (1-t)*a + t*b;
+    }
+
     public static double rootMeanSquare(float[] frame) {
         float sum = 0;
         for (int i = 0; i<frame.length; i++)

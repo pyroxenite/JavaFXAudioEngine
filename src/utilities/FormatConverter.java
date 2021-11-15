@@ -2,26 +2,45 @@ package utilities;
 
 final public class FormatConverter {
     public static byte[] toByteArray(float[] floats, int bytesPerFloat) {
+        byte[] bytes = new byte[floats.length * bytesPerFloat];
+
         double factor = Math.pow(2, 8*bytesPerFloat)/2;
         int maxInt = (1 << (8*bytesPerFloat-1)) - 1;
         int minInt = - (1 << (8*bytesPerFloat-1));
-        //System.out.println(maxInt);
-        byte[] bytes = new byte[floats.length * bytesPerFloat];
+
         for (int i=0; i<floats.length; i++) {
             int intBits = (int) (floats[i] * factor);
             intBits = Math.max(minInt, Math.min(maxInt, intBits));
+
             for (int j=0; j<bytesPerFloat; j++) {
-                //System.out.println(intBits);
                 bytes[i * bytesPerFloat + j] = (byte) (intBits & 0xff);
-                intBits = intBits >> 8;
+                intBits = intBits >>> 8;
             }
         }
         return bytes;
     }
 
     public static void main(String[] args) {
-        float[] floats = {10f};
+        float[] floats = {0.5f};
         byte[] bytes = FormatConverter.toByteArray(floats, 2);
         PrettyPrinter.printBytesAsBinary(bytes);
     }
 }
+
+/*final public class FormatConverter {
+    public static byte[] toByteArray(float[] floats) {
+        byte[] bytes = new byte[floats.length * 2];
+        for (int i=0; i<floats.length; i++) {
+            short x = (short) (floats[i] * (1 << (16-1)));
+            bytes[i * 2] = (byte) (x & 0xff);
+            bytes[i * 2 + 1] = (byte) ((x >> 8) & 0xff);
+        }
+        return bytes;
+    }
+
+    public static void main(String[] args) {
+        float[] floats = {0.5f};
+        byte[] bytes = FormatConverter.toByteArray(floats);
+        PrettyPrinter.printBytes(bytes);
+    }
+}*/

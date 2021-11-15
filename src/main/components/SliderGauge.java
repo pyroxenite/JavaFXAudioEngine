@@ -1,10 +1,14 @@
 package main.components;
 
 import javafx.scene.canvas.GraphicsContext;
+import main.interfaces.Drawable;
 import utilities.ColorTheme;
 import utilities.MathFunctions;
 
-public class SliderGauge {
+/**
+ * This UI element can be used to choose a value via a slider and display a value via a gauge under the slider.
+ */
+public class SliderGauge implements Drawable {
     private int width;
     public static int height = 20;
     private double sliderValue = 0.8;

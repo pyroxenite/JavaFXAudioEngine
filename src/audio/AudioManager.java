@@ -22,15 +22,15 @@ public class AudioManager implements Runnable {
     public void run() {
         AudioIO audioIO = new AudioIO();
         try {
-            SourceDataLine outputLine = audioIO.getOutputLine("Default Audio Device", sampleRate, bytesPerSample);
+            SourceDataLine outputLine = audioIO.getOutputLine("Default Audio Device", sampleRate, 1);
             outputLine.open();
             outputLine.start();
 
             threadIsRunning = true;
             while (threadIsRunning) {
-                if (sourcePort != null && sourcePort.getCable() != null && outputLine.getBufferSize() - outputLine.available() < bufferSize *10) {
-                    float[] floats = sourcePort.requestFrames(bufferSize);
-                    outputLine.write(FormatConverter.toByteArray(floats, bytesPerSample), 0, bufferSize);
+                if (sourcePort != null && sourcePort.getCable() != null && outputLine.getBufferSize() - outputLine.available() < bufferSize * 10) {
+                    float[] floats = sourcePort.requestFrame(bufferSize);
+                    outputLine.write(FormatConverter.toByteArray(floats, 1), 0, bufferSize);
                 }
             }
 

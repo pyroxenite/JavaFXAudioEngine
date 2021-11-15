@@ -6,47 +6,35 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 
+import javafx.scene.transform.Affine;
+import javafx.stage.Stage;
 import main.modules.*;
 import utilities.ColorTheme;
 import utilities.Point;
 
 import java.util.ArrayList;
 
+/**
+ * The plugboard manages and draws modules, and distributes user input based on the modules' bounding box.
+ */
 public class Plugboard extends Canvas {
-    ArrayList<Module> modules = new ArrayList<>();
-    Module moduleUnderMouse = null;
+    private ArrayList<Module> modules = new ArrayList<>();
+    private Module moduleUnderMouse = null;
 
-    public Plugboard(double width, double height) {
+    public Plugboard(double width, double height, Stage stage) {
         super(width, height);
         startMouseInput();
 
-        AudioIO audioIO = new AudioIO();
-
-        modules.add(new SineSquareOscillatorModule().setPosition(650,  200));
-        modules.add(new LowFrequencyOscillatorModule().setPosition(300,  350));
-        modules.add(new OutputsModule(audioIO).setPosition(700,  50));
-        modules.add(new KnobModule().setPosition(100,  100));
-        modules.add(new KnobModule().setPosition(100,  210));
-        modules.add(new KnobModule().setPosition(100,  320));
-        modules.add(new KnobModule().setPosition(100,  430));
-
-        /*Module mixerModule = new MixerModule(5);
-        modules.add(mixerModule);
-        mixerModule.setPosition(450,  300);*/
-        modules.add(new MixerModule(5).setPosition(500, 500));
-
-        modules.add(new SequencerModule(8).setPosition(300,  100));
-        modules.add(new ADSRModule().setPosition(300,  250));
-
-        modules.add(new DisplayModule().setPosition(700, 400));
-
-        //outputModule.getInput(0).connectTo(oscillatorModule.getOutput(0));
+        //Demos.setUpDrumDemo(this, stage);
+        Demos.setUpTestDemo(this, stage);
 
         redraw();
     }
 
     public void redraw() {
         GraphicsContext gc = this.getGraphicsContext2D();
+        //gc.setTransform(new Affine(0.5, 0, 0, 0, 0.5, 0));
+
         gc.setFill(ColorTheme.PLUGBOARD_BACKGROUND);
         gc.fillRect(0, 0, getWidth(), getHeight());
         for (Module module: modules) {
@@ -55,7 +43,6 @@ public class Plugboard extends Canvas {
     }
 
     private void startMouseInput(){
-        // Add mouse event handlers for the source
         Point lastPosition = new Point(0, 0);
 
         this.setOnMousePressed((MouseEvent event) -> {
@@ -117,7 +104,7 @@ public class Plugboard extends Canvas {
 
     private void bringModuleToFront(Module module) {
         modules.add(module);
-        modules.remove(module);
+        modules.remove(module); // first occurrence only
     }
 
     public ArrayList<Module> getModules() {

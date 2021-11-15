@@ -14,6 +14,9 @@ import utilities.Point;
 
 import java.util.ArrayList;
 
+/**
+ * This module implements a user-customizable weighted sum and displays the dB levels of its inputs.
+ */
 public class MixerModule extends Module {
     private ArrayList<SliderGauge> sliderGauges = new ArrayList<>();
     private boolean valueDragStarted = false;
@@ -27,17 +30,16 @@ public class MixerModule extends Module {
             sliderGauges.add(new SliderGauge(width - 44, true));
         }
 
-        addOutput("Output").setSignalProvider(n -> {
-            float[] sum = new float[n];
+        addOutput("Output").setFrameGenerator(frameLength -> {
+            float[] sum = new float[frameLength];
             ArrayList<float[]> inputBytes = new ArrayList<>();
             for (int j = 0; j< sliderGauges.size(); j++) {
-                float[] inputFrame = inputs.get(j).requestFrames(n);
+                double g = Math.pow(10, (sliderGauges.get(j).getSliderValue()-0.8)*3);
+                float[] inputFrame = inputs.get(j).requestFrame(frameLength);
                 inputBytes.add(inputFrame);
-                sliderGauges.get(j).setGaugeValue(1+MathFunctions.amplitudeInDecibels(inputFrame)/40);
-            }
-            for (int i=0; i<n; i++) {
-                for (int j = 0; j< sliderGauges.size(); j++) {
-                    double g = Math.pow(10, (sliderGauges.get(j).getSliderValue()-0.8))*5;
+                sliderGauges.get(j).setGaugeValue(g * (1+MathFunctions.amplitudeInDecibels(inputFrame)/40));
+
+                for (int i=0; i<frameLength; i++) {
                     sum[i] += inputBytes.get(j)[i] * g;
                 }
 

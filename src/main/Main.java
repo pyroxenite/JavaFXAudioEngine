@@ -13,16 +13,19 @@ import main.modules.OutputsModule;
 public class Main extends Application {
     private Plugboard plugboard;
 
-    public void start(Stage primaryStage) {
+    public void start(Stage stage) {
         try {
             BorderPane root = new BorderPane();
             Scene scene = new Scene(root,1500,800);
             root.setTop(createToolbar());
-            plugboard = new Plugboard(scene.getWidth(), scene.getHeight());
+            plugboard = new Plugboard(scene.getWidth(), scene.getHeight(), stage);
             root.setCenter(plugboard);
-            primaryStage.setScene(scene);
-            primaryStage.setTitle("The JavaFX audio processor");
-            primaryStage.show();
+            stage.setScene(scene);
+            stage.setTitle("The JavaFX audio processor");
+            stage.show();
+
+            plugboard.widthProperty().bind(root.widthProperty());
+            plugboard.heightProperty().bind(root.heightProperty());
 
             new AnimationTimer() {
                 private long lastUpdate = 0 ;

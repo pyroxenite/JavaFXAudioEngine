@@ -1,18 +1,23 @@
 package main.components;
 
-import audio.SignalProvider;
 import javafx.scene.canvas.GraphicsContext;
+import main.interfaces.Drawable;
+import main.interfaces.FrameGenerator;
 import main.Module;
 import utilities.ColorTheme;
 import utilities.Point;
 
-public class Port {
+/**
+ * A port either receives or transmits audio data and acts as a node in the audio pipeline. In addition, it acts as a
+ * UI element.
+ */
+public class Port implements FrameGenerator, Drawable {
     private Point position = new Point(0, 0);
     private String name;
     private Module parent;
-    private SignalProvider signalProvider = zeroSignalProvider;
+    private FrameGenerator frameGenerator = ZERO_FRAME_GENERATOR;
 
-    final protected static SignalProvider zeroSignalProvider = (frameLength) -> { return new float[frameLength]; };
+    final protected static FrameGenerator ZERO_FRAME_GENERATOR = (frameLength) -> { return new float[frameLength]; };
 
     public Port(String name, Module parent) {
         this.name = name;
@@ -40,8 +45,8 @@ public class Port {
         return this;
     }
 
-    public Port setSignalProvider(SignalProvider signalProvider) {
-        this.signalProvider = signalProvider;
+    public Port setFrameGenerator(FrameGenerator frameGenerator) {
+        this.frameGenerator = frameGenerator;
         return this;
     }
 
@@ -53,8 +58,8 @@ public class Port {
         gc.strokeOval(position.getX()-5, position.getY()-5, 10, 10);
     }
 
-    public float[] requestFrames(int frameLength) {
-        return signalProvider.requestFrames(frameLength);
+    public float[] requestFrame(int frameLength) {
+        return frameGenerator.requestFrame(frameLength);
     }
 
     public void connectTo(Port port) {

@@ -48,5 +48,4 @@ public class AudioIO {
         List<Mixer.Info> infosList = audioIO.getAudioMixers();
         infosList.forEach(info -> System.out.println('"' + info.getName() + '"'));
     }
-
 }

@@ -7,6 +7,9 @@ import audio.AudioIO;
 
 import main.Module;
 
+/**
+ * Not implemented.
+ */
 public class InputsModule extends Module {
     public InputsModule(AudioIO audioIO) {
         super("System Inputs");

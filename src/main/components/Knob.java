@@ -4,10 +4,14 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.text.TextAlignment;
+import main.interfaces.Drawable;
 import utilities.ColorTheme;
 import utilities.Point;
 
-public class Knob {
+/**
+ * A knob is a circular UI element that users interact with by dragging. It stores a customizable bounded value.
+ */
+public class Knob implements Drawable {
     private String name = "";
     private double min;
     private double max;
@@ -16,13 +20,13 @@ public class Knob {
     private double knobDiameter;
     private Point position = new Point();
 
-    public static final int NAME_AS_LABEL = 0;
-    public static final int VALUE_AS_LABEL = 1;
-    private int labelMode = NAME_AS_LABEL;
+    public enum LabelMode { NAME_AS_LABEL, VALUE_AS_LABEL; }
+    private LabelMode labelMode = LabelMode.NAME_AS_LABEL;
 
-    public static final int LINEAR = 0;
-    public static final int EXPONENTIAL = 1;
-    private int valueMapMode = LINEAR;
+    public enum MapMode { LINEAR, EXPONENTIAL }
+    private MapMode valueMapMode = MapMode.LINEAR;
+
+    private boolean isSelected = false;
 
     public Knob(String name, double knobDiameter, double min, double max, double initial, String unit) {
         this.name = name;
@@ -42,7 +46,7 @@ public class Knob {
     }
 
     public double getValue() {
-        if (valueMapMode == LINEAR)
+        if (valueMapMode == MapMode.LINEAR)
             return min + value*(max-min);
         else {
             double s = 6; // steepness
@@ -67,7 +71,7 @@ public class Knob {
         this.value = Math.max(0, Math.min(1, this.value + value));
     }
 
-    public void draw(GraphicsContext gc, boolean isSelected) {
+    public void draw(GraphicsContext gc) {
         gc.setLineWidth(10);
         gc.setLineCap(StrokeLineCap.BUTT);
         gc.setStroke(ColorTheme.MODULE_FILL_1);
@@ -80,7 +84,7 @@ public class Knob {
         gc.strokeArc(-knobDiameter/2 + position.getX(), -knobDiameter/2 + position.getY(), knobDiameter, knobDiameter, 230, -280*value, ArcType.OPEN);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFill(ColorTheme.TEXT_NORMAL);
-        gc.fillText(labelMode==NAME_AS_LABEL?name:getTextValue(), position.getX(), position.getY() + knobDiameter/2 + 16);
+        gc.fillText(labelMode== LabelMode.NAME_AS_LABEL?name:getTextValue(), position.getX(), position.getY() + knobDiameter/2 + 16);
     }
 
     public Knob setPosition(double x, double y) {
@@ -88,18 +92,38 @@ public class Knob {
         return this;
     }
 
+    /**
+     * The label drawn under the knob will display the knob's value.
+     */
     public Knob displayValue() {
-        labelMode = VALUE_AS_LABEL;
+        labelMode = LabelMode.VALUE_AS_LABEL;
         return this;
     }
 
+    /**
+     * The label drawn under the knob will display the knob's name.
+     */
     public Knob displayName() {
-        labelMode = NAME_AS_LABEL;
+        labelMode = LabelMode.NAME_AS_LABEL;
         return this;
     }
 
-    public Knob setMapMode(int mode) {
-        valueMapMode = mode;
+    /**
+     * By default, a knob will linearly interpolate the minimum and maximum values based on how much it is turned. This
+     * function allows for this interpolation to be exponential (which makes it easier to chose small values precisely
+     * without reducing the range of the knob).
+     * @param mapMode Either Knob.MapMode.LINEAR or Knob.MapMode.EXPONENTIAL.
+     * @return Returns the knob object to allow for chaining.
+     */
+    public Knob setMapMode(MapMode mapMode) {
+        valueMapMode = mapMode;
+        return this;
+    }
+
+    public Knob setSelected(boolean isSelected) {
+        this.isSelected = isSelected;
         return this;
     }
 }
+
+
