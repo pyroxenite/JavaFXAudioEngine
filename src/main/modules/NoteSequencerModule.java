@@ -17,7 +17,7 @@ public class SequencerModule extends Module {
     private boolean valueDragStarted = false;
     private int valueDragIndex = 0;
     private double t = 0;
-    private Knob dutyCycleKnob = new Knob("Duty Cycle", 30, 0, 100, 1, "%");
+    private Knob dutyCycleKnob = new Knob("Duty Cycle", 30, 5, 100, 1, "%");
     private Knob tempoKnob = new Knob("Tempo", 30, 20, 6000, 0.2, "bpm");
 
     public SequencerModule(int numberOfSteps) {
@@ -41,7 +41,7 @@ public class SequencerModule extends Module {
                 t = (t+dt >= numberOfSteps)?0:t+dt;
             }
             return frame;
-        }).setPosition(width - 11, height - 38);
+        }).setPosition(width - 11, height - 38 - 10);
 
         addOutput("Trigger").setSignalProvider(n -> {
             float[] frame = new float[n];
@@ -55,7 +55,7 @@ public class SequencerModule extends Module {
                 }
             }
             return frame;
-        }).setPosition(width - 11, height - 16);
+        }).setPosition(width - 11, height - 16 - 10);
 
     }
 
@@ -115,7 +115,7 @@ public class SequencerModule extends Module {
                     valueDragIndex = Math.max(0, Math.min(numberOfSteps - 1, valueDragIndex));
                 } else {
                     valueDragStarted = true;
-                    if (relativePosition.getX() < width/2) {
+                    if (relativePosition.getX() < width/2.5) {
                         valueDragIndex = -1;
                         dutyCycleKnob.displayValue();
                     } else {
