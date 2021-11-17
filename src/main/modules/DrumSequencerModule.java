@@ -8,6 +8,8 @@ import main.components.*;
 import utilities.ColorTheme;
 import utilities.Point;
 
+import javafx.scene.input.MouseEvent;
+
 /**
  * A drum sequencer can produce multiple synchronised trigger signals. They can then be used to trigger an ADSR or
  * sound clips.
@@ -101,7 +103,8 @@ public class DrumSequencerModule extends Module {
     }
 
     @Override
-    public void handleMouseClicked(Point mousePosition) {
+    public void handleMouseClicked(MouseEvent event) {
+        Point mousePosition = new Point((int) event.getX(), (int) event.getY());
         valueDragStarted = false;
         Point relativePosition = mousePosition.copy().subtract(position);
         if (relativePosition.getY() < 26) {

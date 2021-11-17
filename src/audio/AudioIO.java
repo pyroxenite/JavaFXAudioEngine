@@ -39,7 +39,7 @@ public class AudioIO {
 
     public static SourceDataLine getOutputLine(String mixerName, int sampleRate, int bytesPerSample) throws LineUnavailableException {
         Mixer.Info mixerInfo = getMixerInfo(mixerName);
-        AudioFormat format = new AudioFormat(sampleRate, 8*bytesPerSample, 1, true, false);
+        AudioFormat format = new AudioFormat(sampleRate, 8*bytesPerSample, 1, true, true);
         return AudioSystem.getSourceDataLine(format, mixerInfo);
     }
 

@@ -9,8 +9,10 @@ import main.components.InputPort;
 import main.components.OutputPort;
 import main.components.Port;
 import utilities.ColorTheme;
+import utilities.MathFunctions;
 import utilities.Point;
 
+import javafx.scene.input.MouseEvent;
 import java.util.Arrays;
 
 /**
@@ -23,6 +25,8 @@ public class KnobModule extends Module {
     private Point knobPosition;
     private double knobDiameter;
     private String previousName = "Knob";
+
+    private boolean centeredValue = true;
 
     public KnobModule() {
         super("Knob");
@@ -60,7 +64,21 @@ public class KnobModule extends Module {
         } else {
             gc.setStroke(ColorTheme.MODULE_FILL_2);
         }
-        gc.strokeArc(knobPosition.getX(), knobPosition.getY(), knobDiameter, knobDiameter, 230, -280*value, ArcType.OPEN);
+        if (centeredValue)
+            gc.strokeArc(knobPosition.getX(), knobPosition.getY(), knobDiameter, knobDiameter, 90, -140*MathFunctions.lerp(-1, 1, value), ArcType.OPEN);
+        else
+            gc.strokeArc(knobPosition.getX(), knobPosition.getY(), knobDiameter, knobDiameter, 230, -280*value, ArcType.OPEN);
+
+        if (centeredValue) {
+            gc.setLineWidth(1);
+            gc.setStroke(ColorTheme.MODULE_BORDER);
+            gc.strokeLine(
+                    knobPosition.getX() + knobDiameter / 2,
+                    knobPosition.getY() - 10 / 2,
+                    knobPosition.getX() + knobDiameter / 2,
+                    knobPosition.getY() + 10 / 2
+            );
+        }
 
         drawPortsOnly(gc);
 
@@ -70,7 +88,8 @@ public class KnobModule extends Module {
     }
 
     @Override
-    public void handleMouseClicked(Point mousePosition) {
+    public void handleMouseClicked(MouseEvent event) {
+        Point mousePosition = new Point((int) event.getX(), (int) event.getY());
         valueDragStarted = false;
         Point relativePosition = mousePosition.copy().subtract(position);
         if (relativePosition.getY() < 26) {
@@ -84,8 +103,12 @@ public class KnobModule extends Module {
                     temporaryCableReference = new Cable((InputPort) portUnderMouse, mousePosition);
             } else {
                 if (relativePosition.distanceTo(knobPosition) < knobDiameter) {
-                    valueDragStarted = true;
-                    previousName = name;
+                    if (event.getClickCount() == 1) {
+                        valueDragStarted = true;
+                        previousName = name;
+                    } else {
+                        value = 0.5f;
+                    }
                 }
             }
         }

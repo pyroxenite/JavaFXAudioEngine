@@ -10,6 +10,8 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import main.modules.OutputsModule;
 
+import java.awt.desktop.AppForegroundListener;
+
 public class Main extends Application {
     private Plugboard plugboard;
 
@@ -17,9 +19,13 @@ public class Main extends Application {
         try {
             BorderPane root = new BorderPane();
             Scene scene = new Scene(root,1500,800);
-            root.setTop(createToolbar());
+
+            root.setTop(new ApplicationMenuBar());
+
             plugboard = new Plugboard(scene.getWidth(), scene.getHeight(), stage);
             root.setCenter(plugboard);
+
+
             stage.setScene(scene);
             stage.setTitle("The JavaFX audio processor");
             stage.show();
@@ -37,6 +43,8 @@ public class Main extends Application {
                     }
                 }
             }.start();
+
+
 
         } catch (Exception e) {
             e.printStackTrace();

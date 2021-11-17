@@ -9,6 +9,7 @@ import utilities.ColorTheme;
 import utilities.NoteFormater;
 import utilities.Point;
 
+import javafx.scene.input.MouseEvent;
 import java.util.Arrays;
 
 /**
@@ -100,7 +101,8 @@ public class NoteSequencerModule extends Module {
     }
 
     @Override
-    public void handleMouseClicked(Point mousePosition) {
+    public void handleMouseClicked(MouseEvent event) {
+        Point mousePosition = new Point((int) event.getX(), (int) event.getY());
         valueDragStarted = false;
         Point relativePosition = mousePosition.copy().subtract(position);
         if (relativePosition.getY() < 26) {
@@ -172,5 +174,10 @@ public class NoteSequencerModule extends Module {
                 portUnderMouse.connectTo(externalPortUnderMouse);
             }
         }
+    }
+
+    public NoteSequencerModule setSequence(double[] notes) {
+        this.notes = notes;
+        return this;
     }
 }

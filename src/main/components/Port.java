@@ -63,6 +63,6 @@ public class Port implements FrameGenerator, Drawable {
     }
 
     public void connectTo(Port port) {
-
+        // Override
     }
 }

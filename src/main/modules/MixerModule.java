@@ -1,6 +1,7 @@
 package main.modules;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Affine;
 import main.Module;
@@ -114,7 +115,8 @@ public class MixerModule extends Module {
         }
     }
 
-    public void handleMouseClicked(Point mousePosition) {
+    public void handleMouseClicked(MouseEvent event) {
+        Point mousePosition = new Point((int) event.getX(), (int) event.getY());
         valueDragStarted = false;
         Point relativePosition = mousePosition.copy().subtract(position);
         if (relativePosition.getY() < 26) {

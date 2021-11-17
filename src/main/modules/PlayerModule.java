@@ -11,6 +11,7 @@ import main.components.*;
 import utilities.ColorTheme;
 import utilities.Point;
 
+import javafx.scene.input.MouseEvent;
 import java.io.File;
 
 /**
@@ -43,10 +44,10 @@ public class PlayerModule extends Module {
                 if (trig[i] == 1 && !triggered) {
                     triggered = true;
                     soundFileReader.setPlayhead((int) (soundFileReader.getSampleCount() * startKnob.getValue()/100));
-                } else if (trig[i] == 0) {
+                } else if (soundFileReader.getPlayhead() >= soundFileReader.getSampleCount() * endKnob.getValue()/100) {
                     soundFileReader.setPlayhead(soundFileReader.getSampleCount());
-                    triggered = false;
-                } else if (trig[i] != 1) {
+                }
+                if (trig[i] != 1) {
                     triggered = false;
                 }
             }
@@ -119,12 +120,13 @@ public class PlayerModule extends Module {
 
     private void updatePreview() {
         if (soundFileReader != null) {
-            preview = soundFileReader.requestPreview(100, startKnob.getValue()/100, endKnob.getValue()/100);
+            preview = soundFileReader.requestPreview(200, startKnob.getValue()/100, endKnob.getValue()/100);
         }
     }
 
     @Override
-    public void handleMouseClicked(Point mousePosition) {
+    public void handleMouseClicked(MouseEvent event) {
+        Point mousePosition = new Point((int) event.getX(), (int) event.getY());
         Point relativePosition = mousePosition.copy().subtract(position);
         if (relativePosition.getY() < 26) {
             dragStarted = true;

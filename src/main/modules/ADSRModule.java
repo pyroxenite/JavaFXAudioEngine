@@ -8,6 +8,11 @@ import utilities.ColorTheme;
 import utilities.MathFunctions;
 import utilities.Point;
 
+import javafx.scene.input.MouseEvent;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * An ADSR (attack, decay, sustain, release) envelope. Made to be used in conjunction with oscillators. Can also be used
  * to modulate filters.
@@ -24,6 +29,10 @@ public class ADSRModule extends Module {
     private Knob releaseKnob = new Knob("Release", 30, 1, 10000, 0.5, "ms");
     private Knob minKnob = new Knob("Min", 30, -1, 1, 0.5);
     private Knob maxKnob = new Knob("Max", 30, -1, 1, 1);
+
+    private ArrayList<Knob> knobs = new ArrayList<Knob>(
+            Arrays.asList(attackKnob, decayKnob, sustainKnob, releaseKnob, minKnob, maxKnob)
+    );
 
     private double t = 0;
     private boolean triggered = false;
@@ -63,17 +72,13 @@ public class ADSRModule extends Module {
         double w = width/6;
         double x = w/2;
         double y = 153;
-        attackKnob.setPosition(x, y);
-        x += w;
-        decayKnob.setPosition(x, y);
-        x += w;
-        sustainKnob.setPosition(x, y);
-        x += w;
-        releaseKnob.setPosition(x, y);
-        x += w;
-        minKnob.setPosition(x, y);
-        x += w;
-        maxKnob.setPosition(x, y);
+        for (Knob knob: knobs) {
+            knob.setPosition(x, y);
+            x += w;
+        }
+
+        minKnob.drawValueCentered();
+        maxKnob.drawValueCentered();
     }
 
     @Override
@@ -110,12 +115,8 @@ public class ADSRModule extends Module {
         drawScreen(gc);
         drawPortsAndLabels(gc);
 
-        attackKnob.setSelected(isSelected).draw(gc);
-        decayKnob.setSelected(isSelected).draw(gc);
-        sustainKnob.setSelected(isSelected).draw(gc);
-        releaseKnob.setSelected(isSelected).draw(gc);
-        minKnob.setSelected(isSelected).draw(gc);
-        maxKnob.setSelected(isSelected).draw(gc);
+        for (Knob knob: knobs)
+            knob.setSelected(isSelected).draw(gc);
 
         translate(gc, -position.getX(), -position.getY());
 
@@ -170,7 +171,8 @@ public class ADSRModule extends Module {
     }
 
     @Override
-    public void handleMouseClicked(Point mousePosition) {
+    public void handleMouseClicked(MouseEvent event) {
+        Point mousePosition = new Point((int) event.getX(), (int) event.getY());
         Point relativePosition = mousePosition.copy().subtract(position);
         if (relativePosition.getY() < 26) {
             dragStarted = true;
@@ -182,21 +184,16 @@ public class ADSRModule extends Module {
                 else
                     temporaryCableReference = new Cable((InputPort) portUnderMouse, mousePosition);
             } else if (relativePosition.getY() > 130) {
-                valueDragStarted = true;
-                valueDragIndex = (int) (relativePosition.getX() * 6 / width);
-                valueDragIndex = Math.max(0, Math.min(5, valueDragIndex));
-                if (valueDragIndex == 0)
-                    attackKnob.displayValue();
-                else if (valueDragIndex == 1)
-                    decayKnob.displayValue();
-                else if (valueDragIndex == 2)
-                    sustainKnob.displayValue();
-                else if (valueDragIndex == 3)
-                    releaseKnob.displayValue();
-                else if (valueDragIndex == 4)
-                    minKnob.displayValue();
-                else if (valueDragIndex == 5)
-                    maxKnob.displayValue();
+                if (event.getClickCount() == 1) {
+                    valueDragStarted = true;
+                    valueDragIndex = (int) (relativePosition.getX() * 6 / width);
+                    valueDragIndex = Math.max(0, Math.min(5, valueDragIndex));
+                    knobs.get(valueDragIndex).displayValue();
+                } else if (event.getClickCount() == 2) {
+                    int knobIndex = (int) (relativePosition.getX() * 6 / width);
+                    knobIndex = Math.max(0, Math.min(5, knobIndex));
+                    knobs.get(knobIndex).resetValue();
+                }
             }
         }
     }

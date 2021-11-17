@@ -13,6 +13,7 @@ import main.components.InputPort;
 import main.components.OutputPort;
 import main.components.Port;
 
+import javafx.scene.input.MouseEvent;
 import java.util.ArrayList;
 
 /**
@@ -289,9 +290,10 @@ public class Module implements Drawable {
 
     /**
      * Handles mouse clicks that occur in the module's bounding box.
-     * @param mousePosition The absolute position of the mouse.
+     * @param event The mouse event triggered by the user.
      */
-    public void handleMouseClicked(Point mousePosition) {
+    public void handleMouseClicked(MouseEvent event) {
+        Point mousePosition = new Point((int) event.getX(), (int) event.getY());
         Point relativePosition = mousePosition.copy().subtract(position);
         if (relativePosition.getY() < 26) {
             dragStarted = true;
@@ -300,9 +302,27 @@ public class Module implements Drawable {
             if (portUnderMouse != null) {
                 if (portUnderMouse.getClass() == OutputPort.class)
                     temporaryCableReference = new Cable((OutputPort) portUnderMouse, mousePosition);
-                else
+                else {
+                    ((InputPort) portUnderMouse).disconnect();
                     temporaryCableReference = new Cable((InputPort) portUnderMouse, mousePosition);
+                }
             }
+        }
+    }
+
+    /**
+     * Handle a drag event when the drag was initiated in the module's bounding box.
+     * @param mousePosition The absolute mouse position.
+     * @param mouseDelta The difference between the current and previous mouse position.
+     */
+    public void handleDrag(Point mousePosition, Point mouseDelta) {
+        if (dragStarted) {
+            setPosition(
+                    position.getX() + mouseDelta.getX(),
+                    position.getY() + mouseDelta.getY()
+            );
+        } else if (temporaryCableReference != null && portUnderMouse != null) {
+            temporaryCableReference.setLooseEndPosition(mousePosition);
         }
     }
 
@@ -324,22 +344,6 @@ public class Module implements Drawable {
             if (externalPortUnderMouse != null && portUnderMouse.getClass() != externalPortUnderMouse.getClass()) {
                 portUnderMouse.connectTo(externalPortUnderMouse);
             }
-        }
-    }
-
-    /**
-     * Handle a drag event when the drag was initiated in the module's bounding box.
-     * @param mousePosition The absolute mouse position.
-     * @param mouseDelta The difference between the current and previous mouse position.
-     */
-    public void handleDrag(Point mousePosition, Point mouseDelta) {
-        if (dragStarted) {
-            setPosition(
-                    position.getX() + mouseDelta.getX(),
-                    position.getY() + mouseDelta.getY()
-            );
-        } else if (temporaryCableReference != null && portUnderMouse != null) {
-            temporaryCableReference.setLooseEndPosition(mousePosition);
         }
     }
 

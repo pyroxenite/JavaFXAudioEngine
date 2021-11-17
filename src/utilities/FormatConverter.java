@@ -1,6 +1,24 @@
 package utilities;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 final public class FormatConverter {
+    private static ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    private static DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
+
+    public static byte[] toByteArray(float[] floats, int bytesPerFloat) throws IOException {
+        byteArrayOutputStream.reset();
+        for (int i=0; i<floats.length; i++) {
+            short s = (short) (floats[i] * (1 << (8*bytesPerFloat - 1)));
+            dataOutputStream.writeShort(s);
+        }
+        return byteArrayOutputStream.toByteArray();
+    }
+}
+
+/*final public class FormatConverter {
     public static byte[] toByteArray(float[] floats, int bytesPerFloat) {
         byte[] bytes = new byte[floats.length * bytesPerFloat];
 
@@ -25,7 +43,7 @@ final public class FormatConverter {
         byte[] bytes = FormatConverter.toByteArray(floats, 2);
         PrettyPrinter.printBytesAsBinary(bytes);
     }
-}
+}*/
 
 /*final public class FormatConverter {
     public static byte[] toByteArray(float[] floats) {
@@ -44,3 +62,5 @@ final public class FormatConverter {
         PrettyPrinter.printBytes(bytes);
     }
 }*/
+
+

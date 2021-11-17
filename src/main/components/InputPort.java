@@ -25,6 +25,10 @@ public class InputPort extends Port implements FrameGenerator {
         }
     }
 
+    public void disconnect() {
+        cable = null;
+    }
+
     public float[] requestFrame(int frameLength) {
         if (cable != null && cable.isConnectedToSource()) {
             return cable.getSource().requestFrame(frameLength);

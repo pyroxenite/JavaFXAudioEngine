@@ -6,6 +6,7 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.text.TextAlignment;
 import main.interfaces.Drawable;
 import utilities.ColorTheme;
+import utilities.MathFunctions;
 import utilities.Point;
 
 /**
@@ -19,6 +20,11 @@ public class Knob implements Drawable {
     private double value = 0.5; // 0 to 1;
     private double knobDiameter;
     private Point position = new Point();
+    private double defaultValue = 0.5;
+
+    public void resetValue() {
+        value = defaultValue;
+    }
 
     public enum LabelMode { NAME_AS_LABEL, VALUE_AS_LABEL; }
     private LabelMode labelMode = LabelMode.NAME_AS_LABEL;
@@ -26,15 +32,13 @@ public class Knob implements Drawable {
     public enum MapMode { LINEAR, EXPONENTIAL }
     private MapMode valueMapMode = MapMode.LINEAR;
 
+    private boolean valueDrawnCentered = false;
+
     private boolean isSelected = false;
 
     public Knob(String name, double knobDiameter, double min, double max, double initial, String unit) {
-        this.name = name;
-        this.max = max;
-        this.min = min;
-        this.knobDiameter = knobDiameter;
+        this(name, knobDiameter, min, max, initial);
         this.unit = unit;
-        this.value = initial;
     }
 
     public Knob(String name, double knobDiameter, double min, double max, double initial) {
@@ -43,6 +47,7 @@ public class Knob implements Drawable {
         this.min = min;
         this.knobDiameter = knobDiameter;
         this.value = initial;
+        this.defaultValue = initial;
     }
 
     public double getValue() {
@@ -81,7 +86,30 @@ public class Knob implements Drawable {
         } else {
             gc.setStroke(ColorTheme.MODULE_FILL_2);
         }
-        gc.strokeArc(-knobDiameter/2 + position.getX(), -knobDiameter/2 + position.getY(), knobDiameter, knobDiameter, 230, -280*value, ArcType.OPEN);
+        if (valueDrawnCentered)
+            gc.strokeArc(
+                    -knobDiameter/2 + position.getX(), -knobDiameter/2 + position.getY(),
+                    knobDiameter, knobDiameter,
+                    90, -140* MathFunctions.lerp(-1, 1, value),
+                    ArcType.OPEN
+            );
+        else
+            gc.strokeArc(
+                    -knobDiameter/2 + position.getX(), -knobDiameter/2 + position.getY(),
+                    knobDiameter, knobDiameter,
+                    230, -280*value,
+                    ArcType.OPEN
+            );
+
+        if (valueDrawnCentered) {
+            gc.setLineWidth(1);
+            gc.setStroke(ColorTheme.MODULE_BORDER);
+            gc.strokeLine(
+                    position.getX(), position.getY() - knobDiameter/2 - 10 / 2,
+                    position.getX(), position.getY() - knobDiameter/2 + 10 / 2
+            );
+        }
+        //gc.strokeArc(-knobDiameter/2 + position.getX(), -knobDiameter/2 + position.getY(), knobDiameter, knobDiameter, 230, -280*value, ArcType.OPEN);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFill(ColorTheme.TEXT_NORMAL);
         gc.fillText(labelMode== LabelMode.NAME_AS_LABEL?name:getTextValue(), position.getX(), position.getY() + knobDiameter/2 + 16);
@@ -122,6 +150,11 @@ public class Knob implements Drawable {
 
     public Knob setSelected(boolean isSelected) {
         this.isSelected = isSelected;
+        return this;
+    }
+
+    public Knob drawValueCentered() {
+        valueDrawnCentered = true;
         return this;
     }
 }
