@@ -4,6 +4,7 @@ import audio.RollingBuffer;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.transform.Affine;
 import main.Module;
+import org.json.simple.JSONObject;
 import utilities.ColorTheme;
 
 /**
@@ -58,5 +59,27 @@ public class GrapherModule extends Module {
     protected void updateGeometry() {
         width = 300;
         height = (int) (screenHeight + 22 + 26 + 10);
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+
+        obj.put("class", "GrapherModule");
+
+        obj.put("uuid", uuid.toString());
+        obj.put("x-position", position.getX());
+        obj.put("y-position", position.getY());
+
+        return obj;
+    }
+
+    public static GrapherModule fromJSON(JSONObject obj) {
+        GrapherModule grapher = new GrapherModule();
+
+        grapher.setUUID((String) obj.get("uuid"));
+        grapher.setPosition((double) obj.get("x-position"), (double) obj.get("y-position"));
+
+        return grapher;
     }
 }

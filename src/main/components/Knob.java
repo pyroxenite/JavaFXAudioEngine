@@ -21,9 +21,15 @@ public class Knob implements Drawable {
     private double knobDiameter;
     private Point position = new Point();
     private double defaultValue = 0.5;
+    private boolean integersOnly = false;
 
     public void resetValue() {
         value = defaultValue;
+    }
+
+    public Knob allowIntegersOnly() {
+        integersOnly = true;
+        return this;
     }
 
     public enum LabelMode { NAME_AS_LABEL, VALUE_AS_LABEL; }
@@ -51,12 +57,18 @@ public class Knob implements Drawable {
     }
 
     public double getValue() {
+        double returnValue;
         if (valueMapMode == MapMode.LINEAR)
-            return min + value*(max-min);
+            returnValue = min + value*(max-min);
         else {
             double s = 6; // steepness
             double expValue = (Math.exp(s*value) - Math.exp(s*0))/(Math.exp(s) - Math.exp(0));
-            return min + expValue*(max-min);
+            returnValue = min + expValue*(max-min);
+        }
+        if (integersOnly) {
+            return (int) returnValue;
+        } else {
+            return returnValue;
         }
     }
 
@@ -68,12 +80,16 @@ public class Knob implements Drawable {
         }
     }
 
+    public double getInternalValue() {
+        return value;
+    }
+
     public void addValue(double value) {
         this.value = Math.max(0, Math.min(1, this.value + value));
     }
 
     public void setValue(double value) {
-        this.value = Math.max(0, Math.min(1, this.value + value));
+        this.value = Math.max(0, Math.min(1, value));
     }
 
     public void draw(GraphicsContext gc) {

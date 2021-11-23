@@ -9,11 +9,14 @@ import main.components.Cable;
 import main.components.InputPort;
 import main.components.OutputPort;
 import main.components.SliderGauge;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import utilities.ColorTheme;
 import utilities.MathFunctions;
 import utilities.Point;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This module implements a user-customizable weighted sum and displays the dB levels of its inputs.
@@ -149,5 +152,43 @@ public class MixerModule extends Module {
             double delta = mouseDelta.getX()/ sliderGauge.getWidth();
             sliderGauge.setSliderValue(sliderGauge.getSliderValue() + delta);
         }
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+
+        obj.put("class", "MixerModule");
+
+        obj.put("uuid", uuid.toString());
+        obj.put("x-position", position.getX());
+        obj.put("y-position", position.getY());
+
+        obj.put("channelCount", sliderGauges.size());
+        JSONArray levels = new JSONArray();
+        for (SliderGauge sg: sliderGauges) {
+            levels.add(sg.getSliderValue());
+        }
+        obj.put("levels", levels);
+
+        return obj;
+    }
+
+    public static MixerModule fromJSON(JSONObject obj) {
+        MixerModule mixer = new MixerModule((int) (long) obj.get("channelCount"));
+
+        mixer.setUUID((String) obj.get("uuid"));
+        mixer.setPosition((double) obj.get("x-position"), (double) obj.get("y-position"));
+
+        for (int i=0; i<mixer.getSliderGauges().size(); i++) {
+            SliderGauge sg = mixer.getSliderGauges().get(i);
+            sg.setSliderValue((double) ((List) obj.get("levels")).get(i));
+        }
+
+        return mixer;
+    }
+
+    private List<SliderGauge> getSliderGauges() {
+        return sliderGauges;
     }
 }

@@ -3,6 +3,7 @@ package main.modules;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.transform.Affine;
 import main.Module;
+import org.json.simple.JSONObject;
 import utilities.ColorTheme;
 
 /**
@@ -20,7 +21,7 @@ public class OscilloscopeModule extends Module {
     int downsampleFactor = 10;
 
     public OscilloscopeModule() {
-        super("Grapher");
+        super("Oscilloscope");
 
         addInput("Input").setPosition(11, height - 35);
 
@@ -72,5 +73,27 @@ public class OscilloscopeModule extends Module {
     protected void updateGeometry() {
         width = 300;
         height = (int) (screenHeight + 66 + 26 + 10);
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+
+        obj.put("class", "OscilloscopeModule");
+
+        obj.put("uuid", uuid.toString());
+        obj.put("x-position", position.getX());
+        obj.put("y-position", position.getY());
+
+        return obj;
+    }
+
+    public static OscilloscopeModule fromJSON(JSONObject obj) {
+        OscilloscopeModule noise = new OscilloscopeModule();
+
+        noise.setUUID((String) obj.get("uuid"));
+        noise.setPosition((double) obj.get("x-position"), (double) obj.get("y-position"));
+
+        return noise;
     }
 }

@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -20,14 +21,17 @@ public class Main extends Application {
             BorderPane root = new BorderPane();
             Scene scene = new Scene(root,1500,800);
 
-            root.setTop(new ApplicationMenuBar());
+            System.out.println("Test");
 
             plugboard = new Plugboard(scene.getWidth(), scene.getHeight(), stage);
             root.setCenter(plugboard);
 
+            root.setTop(new ApplicationMenuBar(plugboard));
+
+            setSingleKeyShortcuts(scene, plugboard);
 
             stage.setScene(scene);
-            stage.setTitle("The JavaFX audio processor");
+            stage.setTitle("Little Endian Plugboard");
             stage.show();
 
             plugboard.widthProperty().bind(root.widthProperty());
@@ -51,20 +55,15 @@ public class Main extends Application {
         }
     }
 
-    private Node createToolbar() {
-        Button button = new Button("appuyez !");
-        ToolBar tb = new ToolBar(button, new Label("ceci est un label"), new Separator());
-        button.setOnAction(event -> System.out.println("appui!"));
-        ComboBox<String> cb = new ComboBox<>();
-        cb.getItems().addAll("Item 1", "Item 2", "Item 3");
-        tb.getItems().add(cb);
-        return tb;
-    }
+    private void setSingleKeyShortcuts(Scene scene, Plugboard plugboard) {
+        scene.setOnKeyPressed(e -> {
+            if (e.getText().compareTo(" ") == 0) {
+                //plugboard.togglePlayback();
+            } else if (e.getCode() == KeyCode.BACK_SPACE) {
+                plugboard.deleteSelectedModule();
+            }
 
-    private Node createStatusbar() {
-        HBox statusbar = new HBox();
-        statusbar.getChildren().addAll(new Label("Name:"), new TextField("    "));
-        return statusbar;
+        });
     }
 
     @Override

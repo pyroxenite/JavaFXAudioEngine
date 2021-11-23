@@ -1,6 +1,7 @@
 package main.modules;
 
 import main.Module;
+import org.json.simple.JSONObject;
 import utilities.MathFunctions;
 
 import java.util.Random;
@@ -29,5 +30,27 @@ public class NoiseModule extends Module {
             }
             return frame;
         });
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+
+        obj.put("class", "NoiseModule");
+
+        obj.put("uuid", uuid.toString());
+        obj.put("x-position", position.getX());
+        obj.put("y-position", position.getY());
+
+        return obj;
+    }
+
+    public static NoiseModule fromJSON(JSONObject obj) {
+        NoiseModule noise = new NoiseModule();
+
+        noise.setUUID((String) obj.get("uuid"));
+        noise.setPosition((double) obj.get("x-position"), (double) obj.get("y-position"));
+
+        return noise;
     }
 }

@@ -4,6 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.shape.StrokeLineCap;
 import main.Module;
 import main.components.*;
+import org.json.simple.JSONObject;
 import utilities.ColorTheme;
 import utilities.MathFunctions;
 import utilities.Point;
@@ -244,5 +245,67 @@ public class ADSRModule extends Module {
                 portUnderMouse.connectTo(externalPortUnderMouse);
             }
         }
+    }
+
+    public Knob getAttackKnob() {
+        return attackKnob;
+    }
+
+    public Knob getDecayKnob() {
+        return decayKnob;
+    }
+
+    public Knob getSustainKnob() {
+        return sustainKnob;
+    }
+
+    public Knob getReleaseKnob() {
+        return releaseKnob;
+    }
+
+    public Knob getMinKnob() {
+        return minKnob;
+    }
+
+    public Knob getMaxKnob() {
+        return maxKnob;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+
+        obj.put("name", name);
+
+        obj.put("class", "ADSRModule");
+
+        obj.put("uuid", uuid.toString());
+        obj.put("x-position", position.getX());
+        obj.put("y-position", position.getY());
+
+        obj.put("attack", getAttackKnob().getInternalValue());
+        obj.put("decay", getDecayKnob().getInternalValue());
+        obj.put("sustain", getSustainKnob().getInternalValue());
+        obj.put("release", getReleaseKnob().getInternalValue());
+        obj.put("max", getMaxKnob().getInternalValue());
+        obj.put("min", getMinKnob().getInternalValue());
+
+        return obj;
+    }
+
+    public static ADSRModule fromJSON(JSONObject obj) {
+        ADSRModule adsr = new ADSRModule();
+
+        adsr.setUUID((String) obj.get("uuid"));
+        adsr.setPosition((double) obj.get("x-position"), (double) obj.get("y-position"));
+
+        adsr.getAttackKnob().setValue((double) obj.get("attack"));
+        adsr.getDecayKnob().setValue((double) obj.get("decay"));
+        adsr.getSustainKnob().setValue((double) obj.get("sustain"));
+        adsr.getReleaseKnob().setValue((double) obj.get("release"));
+        adsr.getMaxKnob().setValue((double) obj.get("max"));
+        adsr.getMinKnob().setValue((double) obj.get("min"));
+
+        return adsr;
     }
 }

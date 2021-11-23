@@ -6,6 +6,10 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Affine;
 import main.interfaces.Drawable;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import utilities.ColorTheme;
 import utilities.Point;
 import main.components.Cable;
@@ -14,7 +18,10 @@ import main.components.OutputPort;
 import main.components.Port;
 
 import javafx.scene.input.MouseEvent;
+
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  * Modules are the audio processing/IO units. They provide a GUI for users to interact with the audio pipeline in
@@ -25,6 +32,7 @@ import java.util.ArrayList;
 public class Module implements Drawable {
     // All the following attributes are protected because they are used in subclasses.
     protected String name;
+    protected UUID uuid = UUID.randomUUID();
 
     protected Point position = new Point(0, 0);
     protected int width = 150;
@@ -62,6 +70,11 @@ public class Module implements Drawable {
     public Module setPosition(double x, double y) {
         this.position.setX(x);
         this.position.setY(y);
+        return this;
+    }
+
+    public Module setPosition(Point position) {
+        this.position = position;
         return this;
     }
 
@@ -124,6 +137,22 @@ public class Module implements Drawable {
                 width,
                 height
         );
+    }
+
+    public void setUUID(String uuid) {
+        this.uuid = UUID.fromString(uuid);
+    }
+
+    public void setUUID(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public UUID getUUID() {
+        return uuid;
+    }
+
+    public void newRandomUUID() {
+        uuid = UUID.randomUUID();
     }
 
     /**
@@ -359,5 +388,82 @@ public class Module implements Drawable {
      */
     public void deselect() {
         isSelected = false;
+    }
+
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+
+        obj.put("name", name);
+
+        obj.put("class", "Module");
+        obj.put("uuid", uuid.toString());
+        obj.put("x-position", position.getX());
+        obj.put("y-position", position.getY());
+        JSONArray inputPortsJSON = new JSONArray();
+        inputs.forEach(port -> inputPortsJSON.add(port.getName()));
+        obj.put("inputs", inputPortsJSON);
+        JSONArray outputPortsJSON = new JSONArray();
+        outputs.forEach(port -> outputPortsJSON.add(port.getName()));
+        obj.put("outputs", outputPortsJSON);
+
+        return obj;
+    }
+
+    public static Module fromJSON(String str) throws ParseException {
+        JSONParser parser = new JSONParser();
+        return fromJSON(parser.parse(str));
+    }
+
+    public static Module fromJSON(Object obj) {
+        return fromJSON((JSONObject) obj);
+    }
+
+    public static Module fromJSON(JSONObject obj) {
+        Module module = new Module((String) obj.getOrDefault("name", ""));
+
+        JSONArray inputPortNames = (JSONArray) obj.getOrDefault("inputs", new JSONArray());
+        for (Object o: inputPortNames) {
+            String s = (String) o;
+            module.addInput(s);
+        }
+        JSONArray outputPortNames = (JSONArray) obj.getOrDefault("outputs", new JSONArray());
+        for (Object o: outputPortNames) {
+            String s = (String) o;
+            module.addOutput(s);
+        }
+
+        return module;
+    }
+
+
+
+    public static void main(String[] args) {
+        Module m = new Module("This is a test");
+        m.addInput("Test");
+        m.addOutput("Output");
+        m.setPosition(30, 40);
+        System.out.println(m.toJSON());
+    }
+
+    public void prepareForDelete() {
+        // Meant to be overridden
+    }
+
+    public JSONObject getInputConnectionsAsJSON() {
+        JSONObject inputConnections = new JSONObject();
+
+        for (int i=0; i < inputs.size(); i++) {
+            Cable cable = inputs.get(i).getCable();
+            if (cable != null) {
+                Port outputPort = cable.getSource();
+                int outputPortIndex = outputPort.getParent().getOutputs().indexOf(outputPort);
+                JSONObject connection = new JSONObject();
+                connection.put("source-module-UUID", outputPort.getParent().getUUID().toString());
+                connection.put("output-port-index", outputPortIndex);
+                inputConnections.put(Integer.toString(i), connection);
+            }
+        }
+
+        return inputConnections;
     }
 }

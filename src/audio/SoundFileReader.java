@@ -17,6 +17,8 @@ public class SoundFileReader implements FrameGenerator {
 
     private int playheadPosition = 0;
 
+    private File sourceFile = null;
+
     public SoundFileReader(File file) throws Exception {
         AudioInputStream ais = AudioSystem.getAudioInputStream(file);
         AudioFormat format = ais.getFormat();
@@ -27,6 +29,8 @@ public class SoundFileReader implements FrameGenerator {
 
         bytes = new byte[ais.available()];
         ais.read(bytes);
+
+        sourceFile = file;
     }
 
     public SoundFileReader(String path) throws Exception {
@@ -100,5 +104,9 @@ public class SoundFileReader implements FrameGenerator {
 
     public int getPlayhead() {
         return playheadPosition;
+    }
+
+    public File getSourceFile() {
+        return sourceFile;
     }
 }

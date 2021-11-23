@@ -8,6 +8,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import main.Module;
 import main.components.*;
+import org.json.simple.JSONObject;
 import utilities.ColorTheme;
 import utilities.Point;
 
@@ -85,13 +86,15 @@ public class PlayerModule extends Module {
         }
         gc.stroke();
 
-        double percent = (double) soundFileReader.getPlayhead() / soundFileReader.getSampleCount();
-        percent = (percent - startKnob.getValue()/100) / (endKnob.getValue()/100 - startKnob.getValue()/100);
-        if (percent >= 0 && percent < 1) {
-            gc.setStroke(ColorTheme.MODULE_BORDER_SELECTED);
-            gc.setLineWidth(1);
-            double x = 10 + (width - 20) * percent;
-            gc.strokeLine(x, 26 + 5, x, 26 + 5 + screenHeight);
+        if (soundFileReader != null) {
+            double percent = (double) soundFileReader.getPlayhead() / soundFileReader.getSampleCount();
+            percent = (percent - startKnob.getValue() / 100) / (endKnob.getValue() / 100 - startKnob.getValue() / 100);
+            if (percent >= 0 && percent < 1) {
+                gc.setStroke(ColorTheme.MODULE_BORDER_SELECTED);
+                gc.setLineWidth(1);
+                double x = 10 + (width - 20) * percent;
+                gc.strokeLine(x, 26 + 5, x, 26 + 5 + screenHeight);
+            }
         }
 
         startKnob.setSelected(isSelected).draw(gc);
@@ -186,5 +189,44 @@ public class PlayerModule extends Module {
                 portUnderMouse.connectTo(externalPortUnderMouse);
             }
         }
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+
+        obj.put("class", "PlayerModule");
+
+        obj.put("uuid", uuid.toString());
+        obj.put("x-position", position.getX());
+        obj.put("y-position", position.getY());
+
+        if (soundFileReader != null)
+            obj.put("file-path", soundFileReader.getSourceFile().getAbsolutePath());
+        obj.put("startPercent", startKnob.getInternalValue());
+        obj.put("endPercent", endKnob.getInternalValue());
+
+        return obj;
+    }
+
+    public static PlayerModule fromJSON(JSONObject obj, Stage stage) {
+        PlayerModule playerModule = new PlayerModule(stage);
+
+        playerModule.setUUID((String) obj.get("uuid"));
+        playerModule.setPosition((double) obj.get("x-position"), (double) obj.get("y-position"));
+
+        Object pathObject = obj.getOrDefault("file-path", "");
+        if (pathObject != null) {
+            String path = (String) pathObject;
+            if (path.compareTo("") != 0) {
+                playerModule.openFile(new File(path));
+            }
+        }
+
+        playerModule.startKnob.setValue((double) obj.get("startPercent"));
+        playerModule.endKnob.setValue((double) obj.get("endPercent"));
+        playerModule.updatePreview();
+
+        return playerModule;
     }
 }

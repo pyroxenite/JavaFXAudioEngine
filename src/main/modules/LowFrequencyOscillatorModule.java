@@ -1,6 +1,7 @@
 package main.modules;
 
 import main.Module;
+import org.json.simple.JSONObject;
 
 /**
  * This is an LFO module, used to modulate other parameters more or less slowly.
@@ -27,5 +28,27 @@ public class LowFrequencyOscillatorModule extends Module {
             }
             return frame;
         });
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+
+        obj.put("class", "LowFrequencyOscillatorModule");
+
+        obj.put("uuid", uuid.toString());
+        obj.put("x-position", position.getX());
+        obj.put("y-position", position.getY());
+
+        return obj;
+    }
+
+    public static LowFrequencyOscillatorModule fromJSON(JSONObject obj) {
+        LowFrequencyOscillatorModule lfo = new LowFrequencyOscillatorModule();
+
+        lfo.setUUID((String) obj.get("uuid"));
+        lfo.setPosition((double) obj.get("x-position"), (double) obj.get("y-position"));
+
+        return lfo;
     }
 }

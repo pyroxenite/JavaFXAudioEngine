@@ -1,9 +1,6 @@
-Noise module
-Copy/paste/delete
 Play/pause
-Save/load as file
 Document the code
 Write readme.md
 Make FFT module
 Filters
-Convolution reverb via FFT
+(Convolution reverb via FFT)

@@ -8,6 +8,7 @@ import main.components.Cable;
 import main.components.InputPort;
 import main.components.OutputPort;
 import main.components.Port;
+import org.json.simple.JSONObject;
 import utilities.ColorTheme;
 import utilities.MathFunctions;
 import utilities.Point;
@@ -19,7 +20,7 @@ import java.util.Arrays;
  * This module produces a constant signal user-customizable between -1.0 and 1.0.
  */
 public class KnobModule extends Module {
-    private float value = 0.5f;
+    private float value = 0;
     private boolean valueDragStarted = false;
 
     private Point knobPosition;
@@ -33,9 +34,13 @@ public class KnobModule extends Module {
 
         addOutput("Output").setFrameGenerator(frameLength -> {
             float[] frame = new float[frameLength];
-            Arrays.fill(frame, value*2-1);
+            Arrays.fill(frame, value);
             return frame;
         });
+    }
+
+    public void setValue(float value) {
+        this.value = value;
     }
 
     @Override
@@ -65,9 +70,9 @@ public class KnobModule extends Module {
             gc.setStroke(ColorTheme.MODULE_FILL_2);
         }
         if (centeredValue)
-            gc.strokeArc(knobPosition.getX(), knobPosition.getY(), knobDiameter, knobDiameter, 90, -140*MathFunctions.lerp(-1, 1, value), ArcType.OPEN);
+            gc.strokeArc(knobPosition.getX(), knobPosition.getY(), knobDiameter, knobDiameter, 90, -140*value, ArcType.OPEN);
         else
-            gc.strokeArc(knobPosition.getX(), knobPosition.getY(), knobDiameter, knobDiameter, 230, -280*value, ArcType.OPEN);
+            gc.strokeArc(knobPosition.getX(), knobPosition.getY(), knobDiameter, knobDiameter, 230, -280*value/2.0+0.5, ArcType.OPEN);
 
         if (centeredValue) {
             gc.setLineWidth(1);
@@ -107,7 +112,7 @@ public class KnobModule extends Module {
                         valueDragStarted = true;
                         previousName = name;
                     } else {
-                        value = 0.5f;
+                        value = 0;
                     }
                 }
             }
@@ -124,9 +129,9 @@ public class KnobModule extends Module {
         } else if (temporaryCableReference != null && portUnderMouse != null) {
             temporaryCableReference.setLooseEndPosition(mousePosition);
         } else if (valueDragStarted) {
-            value += (mouseDelta.getX() - mouseDelta.getY())/500;
-            value = Math.max(0, Math.min(1, value));
-            name = String.format("%.2f", value*2 - 1);
+            value += (mouseDelta.getX() - mouseDelta.getY())/300;
+            value = Math.max(-1, Math.min(1, value));
+            name = String.format("%.2f", value);
         }
     }
 
@@ -146,5 +151,31 @@ public class KnobModule extends Module {
 
         if (valueDragStarted)
             name = previousName;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+
+        obj.put("class", "KnobModule");
+
+        obj.put("uuid", uuid.toString());
+        obj.put("x-position", position.getX());
+        obj.put("y-position", position.getY());
+
+        obj.put("value", value);
+
+        return obj;
+    }
+
+    public static KnobModule fromJSON(JSONObject obj) {
+        KnobModule knob = new KnobModule();
+
+        knob.setUUID((String) obj.get("uuid"));
+        knob.setPosition((double) obj.get("x-position"), (double) obj.get("y-position"));
+
+        knob.setValue((float) (double) obj.get("value"));
+
+        return knob;
     }
 }

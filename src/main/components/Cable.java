@@ -67,7 +67,9 @@ public class Cable implements Drawable {
             return;
         }
 
-        double tangent = startPoint.distanceTo(endPoint) / 3;
+        //double tangent = startPoint.distanceTo(endPoint) / 3;
+        double tangent = Math.abs(startPoint.getX() - endPoint.getX())/3;
+        tangent += Math.min(50, Math.abs(startPoint.getY() - endPoint.getY()))/3;
 
         gc.setStroke(ColorTheme.CABLE_STROKE);
         gc.setLineWidth(2);

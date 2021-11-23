@@ -1,6 +1,8 @@
 package main.modules;
 
+import javafx.stage.Stage;
 import main.Module;
+import org.json.simple.JSONObject;
 
 /**
  * This module implements an oscillator with variable frequency, amplitude and shape. When the shape input receives a
@@ -32,5 +34,27 @@ public class SineSquareOscillatorModule extends Module {
             }
             return frame;
         });
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+
+        obj.put("class", "SineSquareOscillatorModule");
+
+        obj.put("uuid", uuid.toString());
+        obj.put("x-position", position.getX());
+        obj.put("y-position", position.getY());
+
+        return obj;
+    }
+
+    public static SineSquareOscillatorModule fromJSON(JSONObject obj) {
+        SineSquareOscillatorModule noise = new SineSquareOscillatorModule();
+
+        noise.setUUID((String) obj.get("uuid"));
+        noise.setPosition((double) obj.get("x-position"), (double) obj.get("y-position"));
+
+        return noise;
     }
 }

@@ -4,21 +4,31 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-final public class FormatConverter {
+/*final public class FormatConverter {
     private static ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     private static DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
 
     public static byte[] toByteArray(float[] floats, int bytesPerFloat) throws IOException {
+        int amplitude = (int) (1 << (8*bytesPerFloat - 1));
+        System.out.println(amplitude);
         byteArrayOutputStream.reset();
         for (int i=0; i<floats.length; i++) {
-            short s = (short) (floats[i] * (1 << (8*bytesPerFloat - 1)));
+            short s = (short) (floats[i] * amplitude);
+            System.out.println(s);
             dataOutputStream.writeShort(s);
         }
         return byteArrayOutputStream.toByteArray();
     }
-}
 
-/*final public class FormatConverter {
+    public static void main(String[] args) throws IOException {
+        float[] floats = new float[30];
+        for (int i=0; i<floats.length; i++)
+            floats[i] = -0.0000305f * i;
+        PrettyPrinter.printBytes(toByteArray(floats, 2));
+    }
+}*/
+
+final public class FormatConverter {
     public static byte[] toByteArray(float[] floats, int bytesPerFloat) {
         byte[] bytes = new byte[floats.length * bytesPerFloat];
 
@@ -43,23 +53,29 @@ final public class FormatConverter {
         byte[] bytes = FormatConverter.toByteArray(floats, 2);
         PrettyPrinter.printBytesAsBinary(bytes);
     }
-}*/
+}
 
 /*final public class FormatConverter {
-    public static byte[] toByteArray(float[] floats) {
+    public static byte[] toByteArray(float[] floats, int o) {
         byte[] bytes = new byte[floats.length * 2];
         for (int i=0; i<floats.length; i++) {
-            short x = (short) (floats[i] * (1 << (16-1)));
-            bytes[i * 2] = (byte) (x & 0xff);
-            bytes[i * 2 + 1] = (byte) ((x >> 8) & 0xff);
+            short val = (short) (Math.abs(floats[i]) * 32767);
+            if (Math.copySign(1, floats[i]) == 1f) {
+                bytes[i * 2] = (byte) (val & 0x00ff);
+                bytes[i * 2 + 1] = (byte) ((val & 0xff00) >>> 8);
+            } else {
+                bytes[i * 2] = (byte) -(val & 0x00ff);
+                bytes[i * 2 + 1] = (byte) -((val & 0xff00) >>> 8);
+            }
         }
         return bytes;
     }
 
-    public static void main(String[] args) {
-        float[] floats = {0.5f};
-        byte[] bytes = FormatConverter.toByteArray(floats);
-        PrettyPrinter.printBytes(bytes);
+    public static void main(String[] args) throws IOException {
+        float[] floats = new float[100];
+        for (int i=0; i<floats.length; i++)
+            floats[i] = 0.0000305f * (i - floats.length/2) ;
+        PrettyPrinter.printBytes(toByteArray(floats, 2));
     }
 }*/
 

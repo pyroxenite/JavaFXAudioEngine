@@ -3,6 +3,7 @@ package main.modules;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.text.TextAlignment;
 import main.Module;
+import org.json.simple.JSONObject;
 import utilities.ColorTheme;
 
 /**
@@ -52,5 +53,27 @@ public class DisplayModule extends Module {
         gc.setFill(ColorTheme.TEXT_NORMAL);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.fillText(String.format("%.2f", value), width/2, 47);
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+
+        obj.put("class", "DisplayModule");
+
+        obj.put("uuid", uuid.toString());
+        obj.put("x-position", position.getX());
+        obj.put("y-position", position.getY());
+
+        return obj;
+    }
+
+    public static DisplayModule fromJSON(JSONObject obj) {
+        DisplayModule disp = new DisplayModule();
+
+        disp.setUUID((String) obj.get("uuid"));
+        disp.setPosition((double) obj.get("x-position"), (double) obj.get("y-position"));
+
+        return disp;
     }
 }

@@ -124,6 +124,14 @@ public final class Demos {
         modules.add(scope);
 
         mixer.getOutput(0).connectTo(outputsModule.getInput(0));
+
+        DrumSequencerModule drumSequencer = new DrumSequencerModule(16, 3);
+        drumSequencer.setSequence(new boolean[][] {
+                {true,  true,  false, false, true,  false, false, false, true,  false, false, false, true,  false, false, false},
+                {false, false, false, false, false, false, true,  false, false, true,  false, false, false, false, true,  false},
+                {false, true,  false, true,  false, true,  false, true,  false, true,  false, true,  false, true,  false, true }
+        }).setPosition(40, 361);
+        modules.add(drumSequencer);
     }
 
     public static void setUpTest1(Plugboard pb, Stage stage) {
@@ -176,6 +184,11 @@ public final class Demos {
 
         modules.add(new KnobModule());
         modules.add(new KnobModule());
-        modules.add(new ADSRModule());
+        modules.add(new KnobModule());
+        modules.add(new LowFrequencyOscillatorModule());
+        modules.add(new OscilloscopeModule());
+
+        Module outputsModule = new OutputsModule().setPosition(990 + 270, 385);
+        modules.add(outputsModule);
     }
 }
