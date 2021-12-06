@@ -1,5 +1,6 @@
 package main;
 
+import audio.AudioIO;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -7,6 +8,9 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+
+import javax.sound.sampled.Mixer;
+import java.util.List;
 
 public class ApplicationMenuBar extends MenuBar {
     public ApplicationMenuBar(Plugboard pb) {
@@ -20,6 +24,7 @@ public class ApplicationMenuBar extends MenuBar {
                 createFileMenu(pb),
                 createEditMenu(pb),
                 createInsertMenu(pb),
+                createAudioSettingsMenu(pb),
                 createHelpMenu()
         );
 
@@ -127,6 +132,7 @@ public class ApplicationMenuBar extends MenuBar {
         MenuItem player = new MenuItem("Clip Player");
         player.setAccelerator(new KeyCodeCombination(KeyCode.P));
         generators.getItems().addAll(sineSquare, noise, lfo, player);
+        generators.setDisable(true);
 
         final Menu triggers = new Menu("Triggers");
         MenuItem noteSeq = new MenuItem("Note Sequencer");
@@ -134,6 +140,7 @@ public class ApplicationMenuBar extends MenuBar {
         MenuItem drumSeq = new MenuItem("Drum Sequencer");
         drumSeq.setAccelerator(new KeyCodeCombination(KeyCode.D));
         triggers.getItems().addAll(noteSeq, drumSeq);
+        triggers.setDisable(true);
 
         final Menu effects = new Menu("Effects");
         //MenuItem noteSeq = new MenuItem("Note Sequencer");
@@ -141,11 +148,13 @@ public class ApplicationMenuBar extends MenuBar {
         //MenuItem drumSeq = new MenuItem("Drum Sequencer");
         //drumSeq.setAccelerator(new KeyCodeCombination(KeyCode.D));
         effects.getItems().addAll();
+        effects.setDisable(true);
 
         final Menu io = new Menu("I/O");
         MenuItem inputsModule = new MenuItem("System Inputs");
         MenuItem outputsModule = new MenuItem("System Outputs");
         io.getItems().addAll(inputsModule, outputsModule);
+        io.setDisable(true);
 
         final Menu displays = new Menu("Displays");
         MenuItem valueDisp = new MenuItem("Display Value");
@@ -155,6 +164,7 @@ public class ApplicationMenuBar extends MenuBar {
         MenuItem oscilloscope = new MenuItem("Oscilloscope");
         oscilloscope.setAccelerator(new KeyCodeCombination(KeyCode.O));
         displays.getItems().addAll(valueDisp, grapher, oscilloscope);
+        displays.setDisable(true);
 
         final Menu utilities = new Menu("Utilities");
         MenuItem mixer = new MenuItem("Mixer");
@@ -162,6 +172,7 @@ public class ApplicationMenuBar extends MenuBar {
         MenuItem knob = new MenuItem("Knob");
         mixer.setAccelerator(new KeyCodeCombination(KeyCode.K));
         utilities.getItems().addAll(mixer, knob);
+        utilities.setDisable(true);
 
         final Menu insertMenu = new Menu("Insert");
         insertMenu.getItems().addAll(
@@ -173,6 +184,25 @@ public class ApplicationMenuBar extends MenuBar {
                 utilities
         );
         return insertMenu;
+    }
+
+    private static Menu createAudioSettingsMenu(Plugboard pb) {
+        Menu devices = new Menu("Output Device");
+        List<Mixer.Info> infosList = AudioIO.getAudioMixers();
+        infosList.forEach(info -> {
+            MenuItem outputItem = new MenuItem(info.getName());
+            outputItem.setOnAction(e -> {
+                pb.setOutputsModuleMixer(info.getName());
+                System.out.println('"' + info.getName() + "' selected");
+            });
+            devices.getItems().add(outputItem);
+        });
+
+
+        final Menu helpMenu = new Menu("Audio Settings");
+        helpMenu.getItems().addAll(devices);
+
+        return helpMenu;
     }
 
     private static Menu createHelpMenu() {

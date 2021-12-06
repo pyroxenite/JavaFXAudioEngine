@@ -1,7 +1,6 @@
 package main.modules;
 
 import audio.AudioIO;
-
 import audio.AudioManager;
 import main.Module;
 import org.json.simple.JSONObject;
@@ -16,9 +15,9 @@ public class OutputsModule extends Module {
     AudioManager audioManager = new AudioManager(44100, 1);
 
     public OutputsModule() {
-        super("System Outputs");
+        super("System Output");
 
-        this.addInput("Default Audio Device");
+        this.addInput("Output");
 
         new Thread(audioManager).start();
         audioManager.setSourcePort(getInput(0));
@@ -53,5 +52,9 @@ public class OutputsModule extends Module {
     @Override
     public void prepareForDelete() {
         audioManager.terminateAudioThread();
+    }
+
+    public AudioManager getAudioManager() {
+        return audioManager;
     }
 }

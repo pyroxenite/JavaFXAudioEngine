@@ -41,19 +41,11 @@ public class Plugboard extends Canvas {
         createContextMenu(stage);
         this.stage = stage;
 
-        //Demos.setUpDrumDemo(this, stage);
-        //Demos.setUpSoundGenDemo(this, stage);
-        //Demos.setUpMainDemo(this, stage);
-
-        //Demos.setUpTest1(this, stage);
-        //Demos.setUpTest2(this, stage);
-
         redraw();
     }
 
     public void redraw() {
         GraphicsContext gc = this.getGraphicsContext2D();
-        //gc.setTransform(new Affine(0.5, 0, 0, 0, 0.5, 0));
 
         gc.setFill(ColorTheme.PLUGBOARD_BACKGROUND);
         gc.fillRect(0, 0, getWidth(), getHeight());
@@ -465,4 +457,12 @@ public class Plugboard extends Canvas {
     }
 
 
+    public void setOutputsModuleMixer(String mixerName) {
+        for (Module module: modules) {
+            if (module.getClass() == OutputsModule.class) {
+                OutputsModule om = (OutputsModule) module;
+                om.getAudioManager().setOutputLine(mixerName);
+            }
+        }
+    }
 }

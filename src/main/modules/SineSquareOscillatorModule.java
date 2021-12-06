@@ -25,11 +25,10 @@ public class SineSquareOscillatorModule extends Module {
             float[] shape = getInput(2).requestFrame(frameLength);
             for (int i = 0; i < frameLength; i++) {
                 double f = 440 * Math.pow(2, ((pitch[i] + 1) * 64 - 69) / 12f);
-                double a = amp[i];//Math.pow(10, (amp[i] - 1) * 10 / 20f);
                 double s = (1 + shape[i]) / 2;
                 double num = Math.atan(Math.sin(2 * Math.PI * ft) * Math.exp(8 * s) / 10.0);
                 double den = Math.atan(Math.exp(8 * s) / 10.0);
-                frame[i] = (float) (num / den * a);
+                frame[i] = (float) (num / den * amp[i]);
                 ft += f / 44100.0;
             }
             return frame;
@@ -50,11 +49,11 @@ public class SineSquareOscillatorModule extends Module {
     }
 
     public static SineSquareOscillatorModule fromJSON(JSONObject obj) {
-        SineSquareOscillatorModule noise = new SineSquareOscillatorModule();
+        SineSquareOscillatorModule osc = new SineSquareOscillatorModule();
 
-        noise.setUUID((String) obj.get("uuid"));
-        noise.setPosition((double) obj.get("x-position"), (double) obj.get("y-position"));
+        osc.setUUID((String) obj.get("uuid"));
+        osc.setPosition((double) obj.get("x-position"), (double) obj.get("y-position"));
 
-        return noise;
+        return osc;
     }
 }

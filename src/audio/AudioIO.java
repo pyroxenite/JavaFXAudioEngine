@@ -20,9 +20,9 @@ public class AudioIO {
     }
 
     public static List<Mixer.Info> getAudioMixers() {
-        List<Mixer.Info> infosList = new ArrayList<Mixer.Info>(Arrays.asList(AudioSystem.getMixerInfo()));
+        List<Mixer.Info> infosList = new ArrayList<>(Arrays.asList(AudioSystem.getMixerInfo()));
         infosList.removeIf(info -> Pattern.matches("Port .*", info.getName()));
-        List<Mixer.Info> l = infosList.stream().distinct().collect(Collectors.toList());
+        infosList = infosList.stream().distinct().collect(Collectors.toList());
         return infosList;
     }
 
@@ -44,8 +44,7 @@ public class AudioIO {
     }
 
     public static void main(String[] args) {
-        AudioIO audioIO = new AudioIO();
-        List<Mixer.Info> infosList = audioIO.getAudioMixers();
+        List<Mixer.Info> infosList = AudioIO.getAudioMixers();
         infosList.forEach(info -> System.out.println('"' + info.getName() + '"'));
     }
 }
